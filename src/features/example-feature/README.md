@@ -1,4 +1,3 @@
-
 # Feature Module: example-feature
 
 This folder is a **template** for creating new features.  
