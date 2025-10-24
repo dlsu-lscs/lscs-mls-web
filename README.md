@@ -1,4 +1,3 @@
-
 # lscs-mls-web
 
 This project was bootstrapped with **create-lscs-next-app**.
