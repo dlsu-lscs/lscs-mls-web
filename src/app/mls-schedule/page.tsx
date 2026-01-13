@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState } from 'react';
+import Navbar from '@/components/Navbar';
 
 //basic attributes for a course
 type Course = {
@@ -53,7 +54,9 @@ export default function SchedulerPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 px-6 py-10">
+    <>
+      <Navbar />
+      <div className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="mx-auto flex max-w-5xl flex-col gap-8 lg:flex-row">
         <div className="w-full rounded-lg bg-white p-6 shadow-sm lg:w-2/5">
           <h1 className="text-2xl font-semibold text-gray-900">Course List</h1>
@@ -137,5 +140,6 @@ export default function SchedulerPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }
