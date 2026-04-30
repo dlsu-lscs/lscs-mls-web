@@ -1,6 +1,32 @@
+"use client";
+
 import Image from 'next/image';
 
+// Import hooks
+import { useEffect, useState } from "react";
+
+
+
 export default function LoginPage() {
+
+  const [backendMessage, setBackendMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchBackend() {
+      try {
+        const response = await fetch("http://localhost:3000/api/test");
+        const data = await response.json();
+        console.log("Backend response:", data);
+        setBackendMessage(data.message);
+      } catch (error) {
+        console.error("Error fetching backend:", error);
+        setBackendMessage("Error connecting to backend");
+      }
+    }
+
+    fetchBackend();
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col-reverse md:flex-row">
       {/* Left Side - LSCS Logo */}
@@ -44,6 +70,11 @@ export default function LoginPage() {
             <p className="mt-6 text-3xl font-semibold text-[#002D57] drop-shadow-[0_6px_18px_rgba(0,45,87,0.18)]">
               Plan smart, Do easy.
             </p>
+<p className="mt-4 text-sm text-gray-500">
+{backendMessage
+? `Backend says: ${backendMessage}`
+: "Connecting to backend..."}
+</p>
           </div>
 
           <div className="mt-10 space-y-4">
