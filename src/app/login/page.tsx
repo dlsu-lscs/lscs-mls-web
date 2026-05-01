@@ -1,7 +1,7 @@
 "use client";
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
 
@@ -31,6 +31,20 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
+
+  const handleGoogleResponse = useCallback(async (response: { access_token: string }) => {
+    setIsLoggingIn(true);
+    setAuthError(null);
+    try {
+      await login(response.access_token);
+      router.push('/mls-schedule');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setAuthError(message);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  }, [login, router]);
 
   // If already logged in, redirect to schedule
   useEffect(() => {
@@ -67,21 +81,7 @@ export default function LoginPage() {
       }, 100);
       return () => clearInterval(interval);
     }
-  }, []);
-
-  async function handleGoogleResponse(response: { access_token: string }) {
-    setIsLoggingIn(true);
-    setAuthError(null);
-    try {
-      await login(response.access_token);
-      router.push('/mls-schedule');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Login failed';
-      setAuthError(message);
-    } finally {
-      setIsLoggingIn(false);
-    }
-  }
+  }, [handleGoogleResponse]);
 
   if (loading) {
     return (
