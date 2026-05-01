@@ -16,6 +16,7 @@ type ScheduleCalendarProps = {
   days: DayKey[];
   rowHeight: number;
   compact?: boolean;
+  timeColumnWidth?: number;
 };
 
 const EVENT_THEMES = [
@@ -34,6 +35,7 @@ export default function ScheduleCalendar({
   days,
   rowHeight,
   compact = false,
+  timeColumnWidth = 60,
 }: ScheduleCalendarProps) {
   const calendarLayouts = buildCalendarLayouts(courses, days);
   const slotCount = (DAY_END - DAY_START) / SLOT_MINUTES;
@@ -47,17 +49,22 @@ export default function ScheduleCalendar({
     courses.map((course, index) => [course.id, EVENT_THEMES[index % EVENT_THEMES.length]]),
   );
 
+  const headerPaddingClass = compact ? "px-1 py-2" : "px-2 py-2.5";
+  const headerTextClass = compact ? "text-xs" : "text-sm";
+
   return (
-    <div className="min-w-[640px]">
+    <div className="w-full">
       <div
         className="grid rounded-lg border border-[#E2E8F0] bg-white"
-        style={{ gridTemplateColumns: `60px repeat(${days.length}, minmax(0, 1fr))` }}
+        style={{
+          gridTemplateColumns: `${timeColumnWidth}px repeat(${days.length}, minmax(0, 1fr))`,
+        }}
       >
-        <div className="border-r border-[#718096]/20 bg-[#64748B] px-2 py-2.5" />
+        <div className={`border-r border-[#718096]/20 bg-[#64748B] ${headerPaddingClass}`} />
         {days.map((day, index) => (
           <div
             key={day}
-            className={`border-r border-white/10 bg-[#64748B] px-2 py-2.5 text-center text-sm font-semibold text-white ${
+            className={`border-r border-white/10 bg-[#64748B] text-center font-semibold text-white ${headerPaddingClass} ${headerTextClass} ${
               index === days.length - 1 ? "border-r-0" : ""
             }`}
           >
@@ -69,21 +76,28 @@ export default function ScheduleCalendar({
           className="relative border-r border-[#E2E8F0] bg-white"
           style={{ height: `${calendarHeight}px` }}
         >
-          {hourLabels.map((minutes) => (
-            <span
-              key={minutes}
-              className={`absolute left-0 right-2 -translate-y-1/2 text-right font-medium text-[#64748B] ${
-                compact ? "text-[10px]" : "text-[11px]"
-              }`}
-              style={{
-                top: `${((minutes - DAY_START) / SLOT_MINUTES) * rowHeight}px`,
-              }}
-            >
-              {formatTime(
-                `${Math.floor(minutes / 60).toString().padStart(2, "0")}:${(minutes % 60).toString().padStart(2, "0")}`,
-              )}
-            </span>
-          ))}
+          {hourLabels.map((minutes) => {
+            const isFirstHour = minutes === DAY_START;
+
+            return (
+              <span
+                key={minutes}
+                // Added whitespace-nowrap and tabular-nums here for perfect alignment
+                className={`absolute left-0 right-2 z-10 bg-white pr-1 text-right font-medium tabular-nums tracking-tight whitespace-nowrap text-[#64748B] ${
+                  isFirstHour ? "translate-y-0" : "-translate-y-1/2"
+                } ${compact ? "text-[10px]" : "text-[11px]"}`}
+                style={{
+                  top: isFirstHour
+                    ? "2px"
+                    : `${((minutes - DAY_START) / SLOT_MINUTES) * rowHeight}px`,
+                }}
+              >
+                {formatTime(
+                  `${Math.floor(minutes / 60).toString().padStart(2, "0")}:${(minutes % 60).toString().padStart(2, "0")}`,
+                )}
+              </span>
+            );
+          })}
         </div>
 
         {days.map((day) => (
@@ -120,7 +134,12 @@ export default function ScheduleCalendar({
                   <p className={`mt-0.5 ${compact ? "text-[9px]" : "text-[10px]"} font-medium ${theme.accent}`}>
                     {event.modality}
                   </p>
-                  <p className={compact ? "mt-1 text-[9px]" : "mt-1 text-[10px]"}>{event.label}</p>
+                  
+                  {/* Time label hidden in compact mode, formatted with tabular-nums otherwise */}
+                  {!compact ? (
+                    <p className="mt-1 text-[10px] tabular-nums tracking-tight">{event.label}</p>
+                  ) : null}
+
                   {!compact ? <p className="mt-0.5 text-[10px]">{event.room}</p> : null}
                 </article>
               );
