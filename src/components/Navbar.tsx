@@ -1,122 +1,107 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
-import Image from 'next/image';
-import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
 
-export default function Navbar() {
+const links = [
+  { href: "/", label: "Home" },
+  { href: "/schedule", label: "Schedule" },
+  { href: "/login", label: "Login" },
+];
+
+type NavbarProps = {
+  termOptions?: string[];
+  selectedTerm?: string;
+  onTermChange?: (term: string) => void;
+};
+
+export default function Navbar({
+  termOptions,
+  selectedTerm,
+  onTermChange,
+}: NavbarProps) {
+  const pathname = usePathname();
   const { user, logout } = useAuth();
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  const displayName = user?.name?.split(' ')[0] || 'User';
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
-      }
-    }
-
-    if (isDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isDropdownOpen]);
 
   return (
-    <nav className="bg-[#002D57] text-white shadow-md">
-      <div className="mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Left side - Logo and brand */}
-          <div className="flex items-center gap-3">
-            <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-              <Image src="/lscs-logo.png" alt="LSCS logo" width={40} height={40} className="object-contain" />
-              <span className="text-xl font-semibold tracking-wide">MackyDo</span>
-            </Link>
-          </div>
+    <nav className="sticky top-0 z-50 border-b border-white/10 bg-[linear-gradient(135deg,#142133_0%,#1d3658_55%,#276097_100%)] text-white shadow-[0_12px_40px_rgba(20,33,51,0.28)]">
+      <div className="mx-auto flex max-w-[1440px] flex-col gap-4 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:px-6">
+        <Link href="/" className="flex items-center gap-3">
+          <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/8 ring-1 ring-white/10">
+            <Image
+              src="/logo.png"
+              alt="LSCS logo"
+              width={36}
+              height={36}
+              className="h-9 w-9 object-contain"
+              priority
+            />
+          </span>
+          <span>
+            <span className="block text-sm font-medium uppercase tracking-[0.28em] text-white/60">
+              LSCS Planner
+            </span>
+            <span className="block text-lg font-semibold text-white">
+              Course Scheduling Hub
+            </span>
+          </span>
+        </Link>
 
-          {/* Center - Nav links */}
-          <div className="hidden sm:flex items-center gap-6">
-            <Link
-              href="/mls-schedule"
-              className="text-sm font-medium text-white/80 hover:text-white transition-colors"
-            >
-              Schedule
-            </Link>
-          </div>
-
-          {/* Right side - User */}
-          <div className="flex items-center gap-4">
-            <span className="text-sm font-medium text-white/90">Hi, {displayName}</span>
-            <div className="relative" ref={dropdownRef}>
-              <button
-                type="button"
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-[#E8C468] focus:ring-offset-2 focus:ring-offset-[#002D57] overflow-hidden"
-                aria-label="Profile menu"
-                aria-expanded={isDropdownOpen}
+        <div className="flex flex-1 flex-col gap-3 lg:flex-row lg:items-center lg:justify-end">
+          {termOptions?.length && selectedTerm && onTermChange ? (
+            <label className="flex min-w-[270px] items-center gap-3 rounded-2xl border border-white/10 bg-white/8 px-4 py-2.5 backdrop-blur">
+              <span className="text-xs font-semibold uppercase tracking-[0.24em] text-white/70">
+                Term
+              </span>
+              <select
+                value={selectedTerm}
+                onChange={(event) => onTermChange(event.target.value)}
+                className="w-full bg-transparent text-sm font-medium text-white outline-none"
               >
-                {user?.picture ? (
-                  <Image
-                    src={user.picture}
-                    alt={user.name}
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6 text-white"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
-                )}
-              </button>
+                {termOptions.map((term) => (
+                  <option key={term} value={term} className="bg-[#142133] text-white">
+                    {term}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-52 bg-white rounded-lg shadow-lg py-1 z-50 border border-gray-200">
-                  {user && (
-                    <div className="px-4 py-2.5 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{user.email}</p>
-                    </div>
-                  )}
-                  <Link
-                    href="/mls-schedule"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                    onClick={() => setIsDropdownOpen(false)}
-                  >
-                    Schedule
-                  </Link>
-                  <hr className="my-1 border-gray-100" />
-                  <button
-                    type="button"
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    onClick={() => {
-                      setIsDropdownOpen(false);
-                      logout();
-                    }}
-                  >
-                    Logout
-                  </button>
-                </div>
-              )}
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {links.map((link) => {
+              const isActive = pathname === link.href;
+
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                    isActive
+                      ? "bg-white text-[#142133] shadow-[0_10px_24px_rgba(255,255,255,0.16)]"
+                      : "text-white/80 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+
+            {user ? (
+              <>
+                <span className="hidden rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm text-white/75 xl:inline">
+                  {user.email}
+                </span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="rounded-full bg-[#E8C468] px-4 py-2 text-sm font-semibold text-[#3D2A08] transition hover:bg-[#f0d17c]"
+                >
+                  Logout
+                </button>
+              </>
+            ) : null}
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { loginWithGoogle } from '@/services/api';
-import { jwtDecode } from 'jwt-decode';
+import { JwtPayload, jwtDecode } from 'jwt-decode';
 
 interface User {
   email: string;
@@ -15,6 +15,13 @@ interface AuthContextType {
   loading: boolean;
   login: (accessToken: string) => Promise<void>;
   logout: () => void;
+}
+
+interface GoogleJwtPayload extends JwtPayload {
+  email?: string;
+  given_name?: string;
+  family_name?: string;
+  picture?: string;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -43,7 +50,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = useCallback(async (accessToken: string) => {
     const jwt = await loginWithGoogle(accessToken);
-    const decoded: any = jwtDecode(jwt);
+    const decoded = jwtDecode<GoogleJwtPayload>(jwt);
 
     // Only allow DLSU emails
     if (!decoded.email?.endsWith('@dlsu.edu.ph')) {
@@ -53,8 +60,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('token', jwt);
     const userData: User = {
       email: decoded.email,
-      name: `${decoded.givenName || ''} ${decoded.familyName || ''}`.trim(),
-      picture: decoded.pictureUrl || '',
+      name: `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim(),
+      picture: decoded.picture || '',
     };
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);

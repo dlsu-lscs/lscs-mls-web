@@ -2,7 +2,7 @@ const API_BASE = 'http://localhost:3000';
 
 export async function testBackend(): Promise<boolean> {
   try {
-    const res = await fetch(`${API_BASE}/auth/google`, { method: 'OPTIONS' });
+    await fetch(`${API_BASE}/auth/google`, { method: 'OPTIONS' });
     return true;
   } catch {
     return false;

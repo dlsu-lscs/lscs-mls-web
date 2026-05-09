@@ -1,9 +1,26 @@
 "use client";
 
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useRouter } from 'next/navigation';
+
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        oauth2: {
+          initTokenClient: (config: {
+            client_id: string;
+            scope: string;
+            callback: (response: { access_token: string }) => void;
+          }) => { requestAccessToken: () => void };
+        };
+      };
+    };
+    __googleClient?: { requestAccessToken: () => void };
+  }
+}
 
 const GOOGLE_CLIENT_ID = 'PASTE_YOUR_CLIENT_ID_HERE';
 
@@ -14,6 +31,20 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
+
+  const handleGoogleResponse = useCallback(async (response: { access_token: string }) => {
+    setIsLoggingIn(true);
+    setAuthError(null);
+    try {
+      await login(response.access_token);
+      router.push('/mls-schedule');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Login failed';
+      setAuthError(message);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  }, [login, router]);
 
   // If already logged in, redirect to schedule
   useEffect(() => {
@@ -27,43 +58,30 @@ export default function LoginPage() {
     if (!GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID === 'PASTE_YOUR_CLIENT_ID_HERE') return;
 
     function initGoogle() {
-      if (!(window as any).google?.accounts?.oauth2) return;
+      if (!window.google?.accounts?.oauth2) return;
 
-      const client = (window as any).google.accounts.oauth2.initTokenClient({
+      const client = window.google.accounts.oauth2.initTokenClient({
         client_id: GOOGLE_CLIENT_ID,
         scope: 'email profile',
         callback: handleGoogleResponse,
       });
 
-      (window as any).__googleClient = client;
+      window.__googleClient = client;
       setGoogleReady(true);
     }
 
-    if ((window as any).google?.accounts?.oauth2) {
+    if (window.google?.accounts?.oauth2) {
       initGoogle();
     } else {
       const interval = setInterval(() => {
-        if ((window as any).google?.accounts?.oauth2) {
+        if (window.google?.accounts?.oauth2) {
           clearInterval(interval);
           initGoogle();
         }
       }, 100);
       return () => clearInterval(interval);
     }
-  }, []);
-
-  async function handleGoogleResponse(response: any) {
-    setIsLoggingIn(true);
-    setAuthError(null);
-    try {
-      await login(response.access_token);
-      router.push('/mls-schedule');
-    } catch (err: any) {
-      setAuthError(err.message || 'Login failed');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  }
+  }, [handleGoogleResponse]);
 
   if (loading) {
     return (
@@ -121,7 +139,7 @@ export default function LoginPage() {
             {GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== 'PASTE_YOUR_CLIENT_ID_HERE' ? (
               <button
                 type="button"
-                onClick={() => (window as any).__googleClient?.requestAccessToken()}
+                onClick={() => window.__googleClient?.requestAccessToken()}
                 disabled={!googleReady || isLoggingIn}
                 className="w-full flex items-center justify-center gap-3 rounded-full px-4 py-3 font-semibold text-[#3D2A08] bg-[#E8C468] shadow-[0_12px_24px_rgba(232,196,104,0.35)] hover:bg-[#f0d17c] hover:shadow-[0_16px_40px_rgba(232,196,104,0.45)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
