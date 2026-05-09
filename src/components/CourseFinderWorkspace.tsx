@@ -20,7 +20,6 @@ import { mapApiCourses } from '@/lib/api-mapper';
 import {
   getCoursesByName,
   fetchCoursesFromMls,
-  updateIdNumber,
 } from '@/services/api';
 
 const COMPACT_PREVIEW_DAYS: DayKey[] = [
@@ -35,7 +34,7 @@ const COMPACT_PREVIEW_DAYS: DayKey[] = [
 type FetchState = 'idle' | 'loading' | 'error';
 
 export default function CourseFinderWorkspace() {
-  const { user, setIdNumber } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const { selectedCourses, addCourse, hasCourse } = useSchedule();
 
@@ -51,8 +50,6 @@ export default function CourseFinderWorkspace() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   // ID number state (used for MLS scraper)
-  const [idNumberInput, setIdNumberInput] = useState(user?.idNumber ?? '');
-  const [idNumberSaving, setIdNumberSaving] = useState(false);
 
   // Confirm-pick modal
   const [pendingCourse, setPendingCourse] = useState<Course | null>(null);
@@ -95,14 +92,9 @@ export default function CourseFinderWorkspace() {
   // ---- MLS scraper (slower, needs ID number) ----
   const handleMlsFetch = useCallback(async () => {
     const name = courseNameInput.trim();
-    const idNum = idNumberInput.trim();
 
     if (!name) {
       setFetchError('Enter a course name first.');
-      return;
-    }
-    if (!idNum) {
-      setFetchError('Enter your DLSU ID number to fetch from MLS.');
       return;
     }
 
@@ -121,21 +113,7 @@ export default function CourseFinderWorkspace() {
       setFetchError(msg);
       setFetchState('error');
     }
-  }, [courseNameInput, idNumberInput]);
-
-  // ---- Save ID number ----
-  const handleSaveIdNumber = useCallback(async () => {
-    if (!user.dbId || !idNumberInput.trim()) return;
-    setIdNumberSaving(true);
-    try {
-      await updateIdNumber(user.dbId, idNumberInput.trim());
-      setIdNumber(idNumberInput.trim());
-    } catch {
-      // Non-fatal — we still keep it in local state
-    } finally {
-      setIdNumberSaving(false);
-    }
-  }, [user.dbId, idNumberInput, setIdNumber]);
+  }, [courseNameInput]);
 
   function handleConfirmPick() {
     if (!pendingCourse) return;
@@ -188,49 +166,6 @@ export default function CourseFinderWorkspace() {
               <div className="w-full rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-3">
                 {/* Row 1: Course name + DLSU ID */}
                 <div className="grid gap-3 sm:grid-cols-2">
-                  <label className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
-                      Course Name
-                    </span>
-                    <input
-                      type="text"
-                      value={courseNameInput}
-                      onChange={(e) =>
-                        setCourseNameInput(e.target.value.toUpperCase())
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleDbSearch();
-                      }}
-                      placeholder="e.g. CCPROG1"
-                      className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
-                    />
-                  </label>
-
-                  <label className="rounded-xl border border-[#E5E7EB] bg-white px-4 py-2.5">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
-                      DLSU ID Number{' '}
-                      <span className="normal-case font-normal">
-                        (for MLS sync)
-                      </span>
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={idNumberInput}
-                        onChange={(e) => setIdNumberInput(e.target.value)}
-                        placeholder="e.g. 12345678"
-                        className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
-                      />
-                      <button
-                        type="button"
-                        onClick={handleSaveIdNumber}
-                        disabled={idNumberSaving || !idNumberInput.trim()}
-                        className="mt-1.5 shrink-0 rounded-lg bg-[#E8C971] px-2 py-1 text-xs font-semibold text-[#111827] disabled:opacity-40"
-                      >
-                        {idNumberSaving ? '…' : 'Save'}
-                      </button>
-                    </div>
-                  </label>
                 </div>
 
                 {/* Row 2: Action buttons */}
