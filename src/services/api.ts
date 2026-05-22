@@ -1,4 +1,4 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3100';
+const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null;
@@ -28,10 +28,11 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export async function loginWithGoogle(accessToken: string): Promise<string> {
-  return apiFetch<string>('/auth/google', {
+  const data = await apiFetch<{ token: string }>('/auth/google', {
     method: 'POST',
     body: JSON.stringify({ token: accessToken }),
   });
+  return data.token;
 }
 
 export interface ApiUser {
@@ -49,7 +50,7 @@ export async function getUserById(uid: number): Promise<ApiUser> {
 
 export interface ApiCourseRow {
   cid: number;
-  course_name: string;
+  courseName: string;
   section: string;
   modality: string | null;
   term: string | null;
@@ -82,7 +83,7 @@ export interface ApiSelectedCourse {
   sid: number;
   courseId: number;
   userId: number;
-  course_name?: string;
+  courseName?: string;
   section?: string;
   modality?: string;
   day?: string;

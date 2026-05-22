@@ -71,6 +71,7 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  
   const removeCourse = useCallback((courseId: string) => {
     setSelectedCourses((currentCourses) => {
       const nextCourses = currentCourses.filter((course) => course.id !== courseId);
@@ -103,3 +104,4 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
 export function useSchedule() {
   return useContext(ScheduleContext);
 }
+

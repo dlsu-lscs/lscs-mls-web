@@ -5,7 +5,7 @@
  * the frontend calendar expects.
  *
  * DB column reference (updated schema):
- *   courses:            cid, course_name, section, modality, term
+ *   courses:            cid, courseName, section, modality, term
  *   course_enrollments: eid, enroll_cap, enrolled, course_id
  *   course_timeslots:   tid, day, time, room, instructor, course_id
  *
@@ -48,7 +48,7 @@ export function mapApiCourses(rows: ApiCourseRow[]): Course[] {
       map.set(row.cid, {
         id: String(row.cid),
         classNumber: String(row.cid), // class_number no longer in schema; use cid
-        code: row.course_name,
+        code: row.courseName,
         section: row.section ?? '',
         professor: '',
         modality: (row.modality === 'Fully Online' ? 'Fully Online' : 'Hybrid'),
