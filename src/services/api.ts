@@ -27,12 +27,23 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+interface AuthResponse {
+  jwtString: string;
+  user: {
+    email: string;
+    givenName: string;
+    familyName: string;
+    userId: string;
+    pictureUrl: string;
+  };
+}
+
 export async function loginWithGoogle(accessToken: string): Promise<string> {
-  const data = await apiFetch<{ token: string }>('/auth/google', {
+  const res = await apiFetch<AuthResponse>('/auth/google', {
     method: 'POST',
     body: JSON.stringify({ token: accessToken }),
   });
-  return data.token;
+  return res.jwtString;
 }
 
 export interface ApiUser {
@@ -48,34 +59,40 @@ export async function getUserById(uid: number): Promise<ApiUser> {
   return apiFetch<ApiUser>(`/users/${uid}`);
 }
 
-export interface ApiCourseRow {
-  cid: number;
-  courseName: string;
-  section: string;
-  modality: string | null;
-  term: string | null;
-  eid: number;
-  enroll_cap: number;
-  enrolled: number;
-  tid: number;
+export interface ApiTimeslot {
+  id: number;
   day: string;
   time: string;
   room: string;
   instructor: string;
+  courseId: number;
+}
+
+export interface ApiCourseStatus {
+  id: number;
+  enrollCap: number;
+  enrolled: number;
+  courseId: number;
+}
+
+export interface ApiCourseRow {
+  id: number;
+  courseName: string;
+  section: string;
+  modality: string | null;
+  term: string | null;
+  status: ApiCourseStatus;
+  timeslots: ApiTimeslot[];
 }
 
 export async function getCoursesByName(courseName: string): Promise<ApiCourseRow[]> {
-  const params = new URLSearchParams({ courseName: courseName.toUpperCase() });
-  return apiFetch<ApiCourseRow[]>(`/courses?${params}`);
+  return apiFetch<ApiCourseRow[]>(`/courses/search/${encodeURIComponent(courseName.toUpperCase())}`);
 }
 
-export async function fetchCoursesFromMls(
-  idNumber: string,
-  courseName: string,
-): Promise<unknown[]> {
-  return apiFetch<unknown[]>('/courses', {
+export async function triggerCourseFetch(part: number, term: number): Promise<void> {
+  return apiFetch<void>('/courses/fetch', {
     method: 'POST',
-    body: JSON.stringify({ idNumber, courseName: courseName.toUpperCase() }),
+    body: JSON.stringify({ part, term }),
   });
 }
 

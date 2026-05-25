@@ -217,7 +217,11 @@ export function dayAbbreviation(day: DayKey) {
 }
 
 export function meetingDaysLabel(meetings: Meeting[]) {
-  return meetings.map((meeting) => dayAbbreviation(meeting.day)).join(" / ");
+  const seen = new Set<string>();
+  return meetings
+    .map((m) => dayAbbreviation(m.day))
+    .filter((abbr) => (seen.has(abbr) ? false : seen.add(abbr) && true))
+    .join(" / ");
 }
 
 export function meetingTimeLabel(meetings: Meeting[]) {

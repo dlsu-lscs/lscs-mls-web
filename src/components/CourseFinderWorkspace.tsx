@@ -17,7 +17,7 @@ import {
   meetingTimeLabel,
 } from '@/lib/schedule-data';
 import { mapApiCourses } from '@/lib/api-mapper';
-import { getCoursesByName, fetchCoursesFromMls } from '@/services/api';
+import { getCoursesByName } from '@/services/api';
 
 const COMPACT_PREVIEW_DAYS: DayKey[] = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
@@ -70,13 +70,12 @@ export default function CourseFinderWorkspace() {
   const { selectedCourses, addCourse, removeCourse, hasCourse } = useSchedule();
 
   const [courseNameInput, setCourseNameInput] = useState('');
-  const [studentId, setStudentId] = useState('');
   const [submittedName, setSubmittedName] = useState('');
   const [selectedFilter, setSelectedFilter] = useState<FilterKey>('classCode');
   const [query, setQuery] = useState('');
   const deferredQuery = useDeferredValue(query.trim().toLowerCase());
   const [courses, setCourses] = useState<Course[]>([]);
-  const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'syncing' | 'error'>('idle');
+  const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('idle');
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   // Modal state
@@ -101,26 +100,6 @@ export default function CourseFinderWorkspace() {
       setFetchState('error');
     }
   }, []);
-
-  const handleSync = useCallback(async () => {
-    const name = courseNameInput.trim().toUpperCase();
-    const id = studentId.trim();
-    if (!name) { setFetchError('Enter a course name first.'); return; }
-    if (!id) { setFetchError('Enter your DLSU ID number to sync from MLS.'); return; }
-    setFetchState('syncing');
-    setFetchError(null);
-    setSubmittedName(name);
-    setQuery('');
-    try {
-      await fetchCoursesFromMls(id, name);
-      const rows = await getCoursesByName(name);
-      setCourses(mapApiCourses(rows));
-      setFetchState('idle');
-    } catch (err: unknown) {
-      setFetchError(err instanceof Error ? err.message : 'Sync failed');
-      setFetchState('error');
-    }
-  }, [courseNameInput, studentId]);
 
   // ── Unique dropdown values for the active filter ─────────────────────────
 
@@ -190,8 +169,7 @@ export default function CourseFinderWorkspace() {
 
   const displayName = user.email.split('@')[0].toUpperCase();
   const isLoading = fetchState === 'loading';
-  const isSyncing = fetchState === 'syncing';
-  const isBusy = isLoading || isSyncing;
+  const isBusy = isLoading;
   const useDropdown = DROPDOWN_FILTERS.has(selectedFilter) && dropdownOptions.length > 0;
 
   return (
@@ -250,36 +228,7 @@ export default function CourseFinderWorkspace() {
                   </button>
                 </div>
 
-                {/* Sync from MLS */}
-                <div className="flex gap-3 items-center rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] px-4 py-3">
-                  <div className="flex-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
-                      Sync from MLS <span className="normal-case font-normal text-[#94A3B8]">— enter your DLSU ID to fetch latest data</span>
-                    </p>
-                    <input
-                      type="text"
-                      value={studentId}
-                      onChange={(e) => setStudentId(e.target.value)}
-                      placeholder="DLSU ID number e.g. 12345678"
-                      className="mt-1 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleSync}
-                    disabled={isBusy || !courseNameInput.trim()}
-                    className="shrink-0 rounded-xl border border-[#5C6B80] px-4 py-2 text-sm font-semibold text-[#5C6B80] transition hover:bg-[#5C6B80] hover:text-white disabled:opacity-50"
-                  >
-                    {isSyncing ? 'Syncing…' : 'Sync from MLS'}
-                  </button>
-                </div>
-
                 {fetchError && <p className="text-sm text-red-600 font-medium">⚠ {fetchError}</p>}
-                {isSyncing && (
-                  <p className="text-sm text-[#5C6B80] animate-pulse">
-                    Fetching latest data from MLS, this may take 10–15 seconds…
-                  </p>
-                )}
 
                 {/* Filter row — shown after results load */}
                 {courses.length > 0 && (
@@ -354,14 +303,14 @@ export default function CourseFinderWorkspace() {
                     {isBusy ? (
                       <tr>
                         <td colSpan={10} className="px-4 py-10 text-center text-sm text-[#64748B] animate-pulse">
-                          {isSyncing ? 'Syncing from MLS…' : 'Fetching courses…'}
+                          Fetching courses…
                         </td>
                       </tr>
                     ) : courses.length === 0 ? (
                       <tr>
                         <td colSpan={10} className="px-4 py-10 text-center text-sm text-[#64748B]">
                           {submittedName
-                            ? `No courses found for "${submittedName}". Try syncing from MLS to fetch the latest data.`
+                            ? `No courses found for "${submittedName}". Try using Sync from MLS to fetch the latest data.`
                             : 'Search for a course above to get started.'}
                         </td>
                       </tr>
