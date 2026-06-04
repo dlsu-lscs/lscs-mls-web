@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useDeferredValue, useState, useCallback, useMemo } from 'react';
+import { useDeferredValue, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ScheduleCalendar from '@/components/ScheduleCalendar';
 import { useAuth } from '@/context/AuthContext';
@@ -17,7 +17,7 @@ import {
   meetingTimeLabel,
 } from '@/lib/schedule-data';
 import { mapApiCourses } from '@/lib/api-mapper';
-import { getCoursesByName } from '@/services/api';
+import { getCoursesByName, getCourseList } from '@/services/api';
 
 const COMPACT_PREVIEW_DAYS: DayKey[] = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
@@ -67,7 +67,7 @@ function checkConflict(candidate: Course, selected: Course[]): ConflictResult {
 export default function CourseFinderWorkspace() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { selectedCourses, addCourse, removeCourse, hasCourse } = useSchedule();
+  const { selectedCourses, addCourse, removeCourse, hasCourse, campusNo, sessionId } = useSchedule();
 
   const [courseNameInput, setCourseNameInput] = useState('');
   const [submittedName, setSubmittedName] = useState('');
@@ -77,6 +77,41 @@ export default function CourseFinderWorkspace() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [fetchState, setFetchState] = useState<'idle' | 'loading' | 'error'>('idle');
   const [fetchError, setFetchError] = useState<string | null>(null);
+
+  // ── Autocomplete ─────────────────────────────────────────────────────────
+
+  const [allCourseNames, setAllCourseNames] = useState<string[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+
+  // Reload course list whenever campus or term changes
+  useEffect(() => {
+    if (campusNo === null || sessionId === null) return;
+    getCourseList(campusNo, sessionId)
+      .then((items) => setAllCourseNames(items.map((i) => i.courseName).sort()))
+      .catch(() => {});
+  }, [campusNo, sessionId]);
+
+  // Filtered suggestions — cap at 10 for performance
+  const suggestions = useMemo(() => {
+    const q = courseNameInput.trim().toUpperCase();
+    if (!q) return allCourseNames.slice(0, 10);
+    return allCourseNames.filter((n) => n.includes(q)).slice(0, 10);
+  }, [allCourseNames, courseNameInput]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function onPointerDown(e: PointerEvent) {
+      if (
+        inputRef.current?.contains(e.target as Node) ||
+        suggestionsRef.current?.contains(e.target as Node)
+      ) return;
+      setShowSuggestions(false);
+    }
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, []);
 
   // Modal state
   const [pendingCourse, setPendingCourse] = useState<Course | null>(null);
@@ -207,20 +242,62 @@ export default function CourseFinderWorkspace() {
 
                 {/* Course name + Search */}
                 <div className="flex gap-3">
-                  <label className="flex-1 rounded-xl border border-[#E5E7EB] px-4 py-2.5">
-                    <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">Course Name</span>
-                    <input
-                      type="text"
-                      value={courseNameInput}
-                      onChange={(e) => setCourseNameInput(e.target.value.toUpperCase())}
-                      onKeyDown={(e) => { if (e.key === 'Enter') handleSearch(courseNameInput); }}
-                      placeholder="e.g. CCPROG1, CCAPDEV, DASALGO"
-                      className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
-                    />
-                  </label>
+                  <div className="relative flex-1">
+                    <label className="flex w-full rounded-xl border border-[#E5E7EB] px-4 py-2.5 focus-within:border-[#5C6B80] focus-within:ring-2 focus-within:ring-[#5C6B80]/10 transition">
+                      <span className="sr-only">Course Name</span>
+                      <div className="w-full">
+                        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">Course Name</span>
+                        <input
+                          ref={inputRef}
+                          type="text"
+                          value={courseNameInput}
+                          onChange={(e) => {
+                            setCourseNameInput(e.target.value.toUpperCase());
+                            setShowSuggestions(true);
+                          }}
+                          onFocus={() => setShowSuggestions(true)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              setShowSuggestions(false);
+                              handleSearch(courseNameInput);
+                            }
+                            if (e.key === 'Escape') setShowSuggestions(false);
+                          }}
+                          placeholder="e.g. CCPROG1, CCAPDEV, DASALGO"
+                          className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
+                          autoComplete="off"
+                        />
+                      </div>
+                    </label>
+
+                    {/* Suggestions dropdown */}
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div
+                        ref={suggestionsRef}
+                        className="absolute left-0 top-full z-20 mt-1 w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-lg"
+                      >
+                        {suggestions.map((name) => (
+                          <button
+                            key={name}
+                            type="button"
+                            onPointerDown={(e) => e.preventDefault()}
+                            onClick={() => {
+                              setCourseNameInput(name);
+                              setShowSuggestions(false);
+                              handleSearch(name);
+                            }}
+                            className="flex w-full items-center px-4 py-2 text-left text-sm font-medium text-[#111827] hover:bg-[#F1F5F9] transition"
+                          >
+                            {name}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
                   <button
                     type="button"
-                    onClick={() => handleSearch(courseNameInput)}
+                    onClick={() => { setShowSuggestions(false); handleSearch(courseNameInput); }}
                     disabled={isBusy || !courseNameInput.trim()}
                     className="self-stretch rounded-xl bg-[#5C6B80] px-5 text-sm font-semibold text-white transition hover:bg-[#526175] disabled:opacity-50"
                   >

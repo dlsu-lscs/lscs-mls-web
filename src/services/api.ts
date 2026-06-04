@@ -125,3 +125,31 @@ export async function addSelectedCourse(uid: number, courseId: number): Promise<
 export async function removeSelectedCourse(uid: number, courseId: number): Promise<void> {
   return apiFetch<void>(`/users/${uid}/courses/${courseId}`, { method: 'DELETE' });
 }
+
+// ── New endpoints ──────────────────────────────────────────────────────────
+
+export interface ApiCampus {
+  campusNo: number;
+  name: string;
+}
+
+export interface ApiTerm {
+  sessionId: number;
+  name: string;
+}
+
+export interface ApiCourseListItem {
+  courseName: string;
+}
+
+export async function getCampuses(): Promise<ApiCampus[]> {
+  return apiFetch<ApiCampus[]>('/campuses');
+}
+
+export async function getTerms(): Promise<ApiTerm[]> {
+  return apiFetch<ApiTerm[]>('/terms');
+}
+
+export async function getCourseList(campusNo: number, sessionId: number): Promise<ApiCourseListItem[]> {
+  return apiFetch<ApiCourseListItem[]>(`/courses/list?campusNo=${campusNo}&sessionId=${sessionId}`);
+}
