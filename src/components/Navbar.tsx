@@ -129,7 +129,7 @@ export default function Navbar({
 
         {/* Right: nav links + auth */}
         <div className="flex shrink-0 items-center gap-1">
-          {links.map((link) => {
+          {links.filter((link) => link.href !== "/login" || !user).map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
