@@ -463,23 +463,6 @@ export default function CourseFinderWorkspace() {
             {/* Sidebar */}
             <aside className="w-full space-y-4">
               <section className="w-full rounded-2xl border border-[#E5E7EB] bg-white p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div>
-                    <p className="text-sm font-semibold text-[#5C6B80]">Mini Schedule</p>
-                    <h2 className="mt-1 text-xl font-extrabold text-[#111827]">Quick Preview</h2>
-                  </div>
-                  <span className="rounded-lg bg-[#F8FAFC] px-3 py-1 text-xs font-semibold text-[#64748B]">Mon–Sat</span>
-                </div>
-                <ScheduleCalendar
-                  courses={selectedCourses}
-                  days={[...COMPACT_PREVIEW_DAYS]}
-                  rowHeight={22}
-                  compact
-                  timeColumnWidth={60}
-                />
-              </section>
-
-              <section className="w-full rounded-2xl border border-[#E5E7EB] bg-white p-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-[#111827]">Selected Courses</h3>
                   <span className="text-xs text-[#64748B]">{selectedCourses.length} total</span>
@@ -514,6 +497,23 @@ export default function CourseFinderWorkspace() {
                     </div>
                   )}
                 </div>
+              </section>
+
+              <section className="w-full rounded-2xl border border-[#E5E7EB] bg-white p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <p className="text-sm font-semibold text-[#5C6B80]">Mini Schedule</p>
+                    <h2 className="mt-1 text-xl font-extrabold text-[#111827]">Quick Preview</h2>
+                  </div>
+                  <span className="rounded-lg bg-[#F8FAFC] px-3 py-1 text-xs font-semibold text-[#64748B]">Mon–Sat</span>
+                </div>
+                <ScheduleCalendar
+                  courses={selectedCourses}
+                  days={[...COMPACT_PREVIEW_DAYS]}
+                  rowHeight={22}
+                  compact
+                  timeColumnWidth={60}
+                />
               </section>
             </aside>
           </div>
