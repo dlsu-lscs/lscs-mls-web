@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useDeferredValue, useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import ScheduleCalendar from '@/components/ScheduleCalendar';
+import ScheduleCalendar, { EVENT_THEMES } from '@/components/ScheduleCalendar';
 import { useAuth } from '@/context/AuthContext';
 import { useSchedule } from '@/context/ScheduleContext';
 import {
@@ -468,32 +468,39 @@ export default function CourseFinderWorkspace() {
                   <h3 className="text-base font-bold text-[#111827]">Selected Courses</h3>
                   <span className="text-xs text-[#64748B]">{selectedCourses.length} total</span>
                 </div>
-                <div className="mt-3 space-y-2">
+                <div className="mt-3 grid grid-cols-2 gap-2">
                   {selectedCourses.length > 0 ? (
-                    selectedCourses.map((course) => (
-                      <div key={course.id} className="rounded-xl border border-[#E5E7EB] bg-[#F8FAFC] p-3">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="text-sm font-bold text-[#111827]">{course.code}-{course.section}</p>
-                            <p className="mt-0.5 text-[11px] text-[#64748B]">{course.professor}</p>
-                          </div>
-                          <button
-                            type="button"
-                            onClick={() => removeCourse(course.id)}
-                            className="shrink-0 rounded-lg px-2 py-1 text-[11px] font-semibold bg-red-100 text-red-600 hover:bg-red-200 transition"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                        <div className="mt-2 space-y-1 text-[11px] text-[#4B5563]">
-                          <p>{meetingDaysLabel(course.meetings)}</p>
-                          <p>{meetingTimeLabel(course.meetings)}</p>
-                          <p>{meetingRoomLabel(course.meetings)}</p>
+                    selectedCourses.map((course, index) => {
+                      const theme = EVENT_THEMES[index % EVENT_THEMES.length];
+                      return (
+                      <div key={course.id} className={`relative rounded-lg border p-2 ${theme.block}`}>
+                        <button
+                          type="button"
+                          onClick={() => removeCourse(course.id)}
+                          aria-label={`Remove ${course.code}-${course.section}`}
+                          className="absolute right-1 top-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-red-100 text-[13px] font-bold leading-none text-red-600 hover:bg-red-200 transition"
+                        >
+                          ×
+                        </button>
+                        <p className="pr-5 text-[14px] font-bold leading-tight">{course.code}-{course.section}</p>
+                        <p className={`mt-0.5 truncate text-[12px] leading-tight ${theme.accent}`}>{course.professor}</p>
+                        <div className={`mt-1.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] leading-tight ${theme.accent}`}>
+                          <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                            course.modality === 'Fully Online'
+                              ? 'bg-blue-100 text-blue-700'
+                              : 'bg-green-100 text-green-700'
+                          }`}>
+                            {course.modality}
+                          </span>
+                          <span>{meetingDaysLabel(course.meetings)}</span>
+                          <span>{meetingTimeLabel(course.meetings)}</span>
+                          <span>{meetingRoomLabel(course.meetings)}</span>
                         </div>
                       </div>
-                    ))
+                      );
+                    })
                   ) : (
-                    <div className="rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-4 py-5 text-center text-sm text-[#64748B]">
+                    <div className="col-span-2 rounded-xl border border-dashed border-[#CBD5E1] bg-[#F8FAFC] px-4 py-5 text-center text-sm text-[#64748B]">
                       No course picked yet. Search above to build your schedule.
                     </div>
                   )}

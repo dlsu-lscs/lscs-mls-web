@@ -19,7 +19,7 @@ type ScheduleCalendarProps = {
   timeColumnWidth?: number;
 };
 
-const EVENT_THEMES = [
+export const EVENT_THEMES = [
   {
     block: "border-[#d8bc66] bg-[#EED17F] text-[#1E293B]",
     accent: "text-[#6b5311]",
