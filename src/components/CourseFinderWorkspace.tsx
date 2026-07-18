@@ -241,65 +241,64 @@ export default function CourseFinderWorkspace() {
               <div className="w-full rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-3">
 
                 {/* Course name + Search */}
-                <div className="flex gap-3">
-                  <div className="relative flex-1">
-                    <label className="flex w-full rounded-xl border border-[#E5E7EB] px-4 py-2.5 focus-within:border-[#5C6B80] focus-within:ring-2 focus-within:ring-[#5C6B80]/10 transition">
-                      <span className="sr-only">Course Name</span>
-                      <div className="w-full">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">Course Name</span>
-                        <input
-                          ref={inputRef}
-                          type="text"
-                          value={courseNameInput}
-                          onChange={(e) => {
-                            setCourseNameInput(e.target.value.toUpperCase());
-                            setShowSuggestions(true);
-                          }}
-                          onFocus={() => setShowSuggestions(true)}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              setShowSuggestions(false);
-                              handleSearch(courseNameInput);
-                            }
-                            if (e.key === 'Escape') setShowSuggestions(false);
-                          }}
-                          placeholder="e.g. CCPROG1, CCAPDEV, DASALGO"
-                          className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
-                          autoComplete="off"
-                        />
-                      </div>
+                <div className="flex items-end gap-3">
+                  <div className="flex-1">
+                    <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
+                      Course Name
                     </label>
+                    <div className="relative">
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        value={courseNameInput}
+                        onChange={(e) => {
+                          setCourseNameInput(e.target.value.toUpperCase());
+                          setShowSuggestions(true);
+                        }}
+                        onFocus={() => setShowSuggestions(true)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            setShowSuggestions(false);
+                            handleSearch(courseNameInput);
+                          }
+                          if (e.key === 'Escape') setShowSuggestions(false);
+                        }}
+                        placeholder="e.g. CCPROG1, CCAPDEV, DASALGO"
+                        className="w-full rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8] transition focus:border-[#5C6B80] focus:ring-2 focus:ring-[#5C6B80]/10"
+                        autoComplete="off"
+                      />
 
-                    {/* Suggestions dropdown */}
-                    {showSuggestions && suggestions.length > 0 && (
-                      <div
-                        ref={suggestionsRef}
-                        className="absolute left-0 top-full z-20 mt-1 w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-lg"
-                      >
-                        {suggestions.map((name) => (
-                          <button
-                            key={name}
-                            type="button"
-                            onPointerDown={(e) => e.preventDefault()}
-                            onClick={() => {
-                              setCourseNameInput(name);
-                              setShowSuggestions(false);
-                              handleSearch(name);
-                            }}
-                            className="flex w-full items-center px-4 py-2 text-left text-sm font-medium text-[#111827] hover:bg-[#F1F5F9] transition"
-                          >
-                            {name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                      {/* Suggestions dropdown */}
+                      {showSuggestions && suggestions.length > 0 && (
+                        <div
+                          ref={suggestionsRef}
+                          className="absolute left-0 top-full z-20 mt-1 w-full overflow-hidden rounded-xl border border-[#E5E7EB] bg-white shadow-lg"
+                        >
+                          {suggestions.map((name) => (
+                            <button
+                              key={name}
+                              type="button"
+                              onPointerDown={(e) => e.preventDefault()}
+                              onClick={() => {
+                                setCourseNameInput(name);
+                                setShowSuggestions(false);
+                                handleSearch(name);
+                              }}
+                              className="flex w-full items-center px-4 py-2 text-left text-sm font-medium text-[#111827] hover:bg-[#F1F5F9] transition"
+                            >
+                              {name}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <button
                     type="button"
                     onClick={() => { setShowSuggestions(false); handleSearch(courseNameInput); }}
                     disabled={isBusy || !courseNameInput.trim()}
-                    className="self-stretch rounded-xl bg-[#5C6B80] px-5 text-sm font-semibold text-white transition hover:bg-[#526175] disabled:opacity-50"
+                    className="rounded-xl bg-[#5C6B80] px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-[#526175] disabled:opacity-50"
                   >
                     {isLoading ? 'Searching…' : 'Search'}
                   </button>
@@ -311,49 +310,51 @@ export default function CourseFinderWorkspace() {
                 {courses.length > 0 && (
                   <div className="grid gap-3 sm:grid-cols-[200px_minmax(0,1fr)]">
                     {/* Filter By selector */}
-                    <label className="rounded-xl border border-[#5C6B80] bg-[#5C6B80] px-4 py-2.5">
-                      <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-white/70">Filter By</span>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
+                        Filter By
+                      </label>
                       <select
                         value={selectedFilter}
                         onChange={(e) => { setSelectedFilter(e.target.value as FilterKey); setQuery(''); }}
-                        className="mt-1.5 w-full bg-transparent text-sm font-medium text-white outline-none"
+                        className="w-full rounded-xl border border-[#5C6B80] bg-[#5C6B80] px-4 py-2.5 text-sm font-medium text-white outline-none"
                       >
                         {FILTER_OPTIONS.map((o) => (
                           <option key={o.value} value={o.value} className="bg-[#5C6B80]">{o.label}</option>
                         ))}
                       </select>
-                    </label>
+                    </div>
 
                     {/* Smart filter: dropdown if categorical, text if freeform */}
                     {useDropdown ? (
-                      <label className="rounded-xl border border-[#E5E7EB] px-4 py-2.5">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
+                      <div>
+                        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
                           Select {FILTER_OPTIONS.find((o) => o.value === selectedFilter)?.label}
-                        </span>
+                        </label>
                         <select
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
-                          className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none"
+                          className="w-full rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-sm font-medium text-[#111827] outline-none transition focus:border-[#5C6B80] focus:ring-2 focus:ring-[#5C6B80]/10"
                         >
                           <option value="">— All —</option>
                           {dropdownOptions.map((opt) => (
                             <option key={opt} value={opt}>{opt}</option>
                           ))}
                         </select>
-                      </label>
+                      </div>
                     ) : (
-                      <label className="rounded-xl border border-[#E5E7EB] px-4 py-2.5">
-                        <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
+                      <div>
+                        <label className="mb-1 block text-[11px] font-semibold uppercase tracking-[0.22em] text-[#64748B]">
                           Filter by {FILTER_OPTIONS.find((o) => o.value === selectedFilter)?.label}
-                        </span>
+                        </label>
                         <input
                           type="text"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           placeholder={`Type to filter…`}
-                          className="mt-1.5 w-full bg-transparent text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8]"
+                          className="w-full rounded-xl border border-[#E5E7EB] px-4 py-2.5 text-sm font-medium text-[#111827] outline-none placeholder:text-[#94A3B8] transition focus:border-[#5C6B80] focus:ring-2 focus:ring-[#5C6B80]/10"
                         />
-                      </label>
+                      </div>
                     )}
                   </div>
                 )}
