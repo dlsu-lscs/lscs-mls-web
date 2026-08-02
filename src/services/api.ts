@@ -65,14 +65,14 @@ export interface ApiTimeslot {
   time: string;
   room: string;
   instructor: string;
-  courseId: number;
+  courseId?: number;
 }
 
 export interface ApiCourseStatus {
   id: number;
   enrollCap: number;
   enrolled: number;
-  courseId: number;
+  courseId?: number;
 }
 
 export interface ApiCourseRow {
@@ -97,26 +97,48 @@ export async function triggerCourseFetch(part: number, term: number): Promise<vo
 }
 
 export interface ApiSelectedCourse {
-  sid: number;
   courseId: number;
-  userId: number;
-  courseName?: string;
-  section?: string;
-  modality?: string;
-  day?: string;
-  time?: string;
-  room?: string;
-  instructor?: string;
-  enroll_cap?: number;
+  courseName: string;
+  section: string;
+  modality: string | null;
+  enrollCap?: number;
   enrolled?: number;
+  timeslots: ApiTimeslot[];
+}
+
+// Raw shape returned by GET /users/:id/courses — a course row with nested
+// enrollment status and timeslots, not the flat shape the UI wants.
+interface RawUserSelectedCourse {
+  id: number;
+  courseName: string;
+  section: string;
+  modality: string | null;
+  status?: { enrollCap: number; enrolled: number };
+  timeslots?: ApiTimeslot[];
 }
 
 export async function getUserSelectedCourses(uid: number): Promise<ApiSelectedCourse[]> {
-  return apiFetch<ApiSelectedCourse[]>(`/users/${uid}/courses`);
+  const rows = await apiFetch<RawUserSelectedCourse[]>(`/users/${uid}/courses`);
+  return rows.map((row) => ({
+    courseId: row.id,
+    courseName: row.courseName,
+    section: row.section,
+    modality: row.modality,
+    enrollCap: row.status?.enrollCap,
+    enrolled: row.status?.enrolled,
+    timeslots: row.timeslots ?? [],
+  }));
 }
 
-export async function addSelectedCourse(uid: number, courseId: number): Promise<ApiSelectedCourse> {
-  return apiFetch<ApiSelectedCourse>(`/users/${uid}/courses`, {
+export interface ApiCreatedSelectedCourse {
+  id: number;
+  courseId: number;
+  userId: number;
+}
+
+export async function addSelectedCourse(uid: number, courseId: number): Promise<ApiCreatedSelectedCourse> {
+  // Backend route is POST /users/courses (userId comes from the body, not the path).
+  return apiFetch<ApiCreatedSelectedCourse>('/users/courses', {
     method: 'POST',
     body: JSON.stringify({ courseId, userId: uid }),
   });
@@ -126,7 +148,7 @@ export async function removeSelectedCourse(uid: number, courseId: number): Promi
   return apiFetch<void>(`/users/${uid}/courses/${courseId}`, { method: 'DELETE' });
 }
 
-// ── New endpoints ──────────────────────────────────────────────────────────
+// New endpoints 
 
 export interface ApiCampus {
   campusNo: number;
@@ -139,7 +161,8 @@ export interface ApiTerm {
 }
 
 export interface ApiCourseListItem {
-  courseName: string;
+  courseId: number;
+  name: string;
 }
 
 export async function getCampuses(): Promise<ApiCampus[]> {

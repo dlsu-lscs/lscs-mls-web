@@ -89,7 +89,7 @@ export default function CourseFinderWorkspace() {
   useEffect(() => {
     if (campusNo === null || sessionId === null) return;
     getCourseList(campusNo, sessionId)
-      .then((items) => setAllCourseNames(items.map((i) => i.courseName).sort()))
+      .then((items) => setAllCourseNames(items.map((i) => i.name).sort()))
       .catch(() => {});
   }, [campusNo, sessionId]);
 
