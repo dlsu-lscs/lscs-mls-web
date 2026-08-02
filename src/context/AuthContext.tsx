@@ -21,7 +21,6 @@ export interface AuthUser {
   email: string;
   name: string;
   picture: string;
-  /** DLSU student/employee ID, saved separately via PUT /users/:id/id-number */
 }
 
 interface AuthContextType {

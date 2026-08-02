@@ -46,19 +46,6 @@ export async function loginWithGoogle(accessToken: string): Promise<string> {
   return res.jwtString;
 }
 
-export interface ApiUser {
-  uid: number;
-  email?: string;
-  givenName?: string;
-  familyName?: string;
-  userId: string;
-  pictureUrl?: string;
-}
-
-export async function getUserById(uid: number): Promise<ApiUser> {
-  return apiFetch<ApiUser>(`/users/${uid}`);
-}
-
 export interface ApiTimeslot {
   id: number;
   day: string;

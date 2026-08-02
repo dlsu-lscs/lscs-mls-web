@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Navbar from "@/components/Navbar";
 import CourseFinderWorkspace from "@/components/CourseFinderWorkspace";
 import { useSchedule } from "@/context/ScheduleContext";
-import { getCampuses, getTerms, triggerCourseFetch, ApiCampus, ApiTerm } from "@/services/api";
+import { getCampuses, getTerms, ApiCampus, ApiTerm } from "@/services/api";
 
 export default function Home() {
   const { setSelectedTerm, setCampusNo, setSessionId, campusNo } = useSchedule();
@@ -17,21 +17,11 @@ export default function Home() {
   const [retryToken, setRetryToken] = useState(0);
 
   // Load campuses and terms on mount, restore persisted campus preference.
-  // If there's no active scraper session yet, bootstrap one and retry once.
   useEffect(() => {
     let mounted = true;
     setLoadError(null);
 
-    async function loadCampusesAndTerms() {
-      try {
-        return await Promise.all([getCampuses(), getTerms()]);
-      } catch {
-        await triggerCourseFetch(0, 0);
-        return await Promise.all([getCampuses(), getTerms()]);
-      }
-    }
-
-    loadCampusesAndTerms().then(([campusData, termData]) => {
+    Promise.all([getCampuses(), getTerms()]).then(([campusData, termData]) => {
       if (!mounted) return;
 
       setCampuses(campusData);
