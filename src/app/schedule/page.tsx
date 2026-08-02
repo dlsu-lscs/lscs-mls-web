@@ -4,18 +4,14 @@ import Navbar from "@/components/Navbar";
 import ScheduleCalendar from "@/components/ScheduleCalendar";
 import ScheduleDetailCard from "@/components/ScheduleDetailCard";
 import { useSchedule } from "@/context/ScheduleContext";
-import { SCHEDULE_DAYS, TERM_OPTIONS } from "@/lib/schedule-data";
+import { SCHEDULE_DAYS } from "@/lib/schedule-data";
 
 export default function SchedulePage() {
-  const { selectedCourses, selectedTerm, setSelectedTerm } = useSchedule();
+  const { selectedCourses, selectedTerm } = useSchedule();
 
   return (
     <>
-      <Navbar
-        termOptions={TERM_OPTIONS}
-        selectedTerm={selectedTerm}
-        onTermChange={setSelectedTerm}
-      />
+      <Navbar />
 
       <main className="min-h-screen bg-[radial-gradient(circle_at_top,#1e293b_0%,#0f172a_62%)] px-4 py-8 lg:px-6">
         <div className="mx-auto max-w-[1280px]">

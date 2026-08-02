@@ -1,28 +1,52 @@
-"use client";
+'use client';
 
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  ReactNode,
+} from 'react';
 import { loginWithGoogle } from '@/services/api';
 import { JwtPayload, jwtDecode } from 'jwt-decode';
 
-interface User {
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
+export interface AuthUser {
+  /** DB primary key — needed for /users/:id/* routes */
+  dbId: number | null;
   email: string;
   name: string;
   picture: string;
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   loading: boolean;
   login: (accessToken: string) => Promise<void>;
   logout: () => void;
 }
 
-interface GoogleJwtPayload extends JwtPayload {
+/**
+ * The JWT our backend signs contains these fields (note: camelCase from the
+ * backend, NOT the snake_case field names that Google's own JWT uses).
+ */
+interface BackendJwtPayload extends JwtPayload {
+  /** DB primary key */
+  uid?: number | null;
   email?: string;
-  given_name?: string;
-  family_name?: string;
-  picture?: string;
+  givenName?: string;
+  familyName?: string;
+  userId?: string;
+  pictureUrl?: string;
 }
+
+// ---------------------------------------------------------------------------
+// Context
+// ---------------------------------------------------------------------------
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
@@ -32,37 +56,49 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Rehydrate from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('user');
-    if (saved) {
-      try {
+    try {
+      const saved = localStorage.getItem('user');
+      if (saved) {
         setUser(JSON.parse(saved));
-      } catch {
-        localStorage.removeItem('user');
-        localStorage.removeItem('token');
       }
+    } catch {
+      localStorage.removeItem('user');
+      localStorage.removeItem('token');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   const login = useCallback(async (accessToken: string) => {
+    // 1. Exchange Google access token for our app's JWT
     const jwt = await loginWithGoogle(accessToken);
-    const decoded = jwtDecode<GoogleJwtPayload>(jwt);
 
-    // Only allow DLSU emails
+    // 2. Decode the JWT our backend signed
+    const decoded = jwtDecode<BackendJwtPayload>(jwt);
+
+    // 3. Enforce DLSU-only emails
     if (!decoded.email?.endsWith('@dlsu.edu.ph')) {
-      throw new Error('Please use your DLSU email (@dlsu.edu.ph) to sign in.');
+      throw new Error(
+        'Please use your DLSU email (@dlsu.edu.ph) to sign in.',
+      );
     }
 
+    // 4. Persist token
     localStorage.setItem('token', jwt);
-    const userData: User = {
+
+    // 5. Build user object using the BACKEND field names (givenName, not given_name)
+    const userData: AuthUser = {
+      dbId: decoded.uid ?? null,
       email: decoded.email,
-      name: `${decoded.given_name || ''} ${decoded.family_name || ''}`.trim(),
-      picture: decoded.picture || '',
+      name: `${decoded.givenName ?? ''} ${decoded.familyName ?? ''}`.trim(),
+      picture: decoded.pictureUrl ?? '',
     };
+
     localStorage.setItem('user', JSON.stringify(userData));
     setUser(userData);
   }, []);
@@ -73,6 +109,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     window.location.href = '/login';
   }, []);
+
+  /** Call this after successfully updating the ID number via the API. */
 
   return (
     <AuthContext.Provider value={{ user, loading, login, logout }}>

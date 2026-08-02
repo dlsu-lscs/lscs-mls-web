@@ -55,9 +55,29 @@ export type PositionedEvent = CalendarEvent & {
 };
 
 export const TERM_OPTIONS = [
-  "First Trimester AY 2025-2026",
-  "Second Trimester AY 2025-2026",
-  "Third Trimester AY 2025-2026",
+  "3rd Trimester AY 2025-2026",
+  "2nd Trimester AY 2025-2026",
+  "1st Trimester AY 2025-2026",
+  "3rd Trimester AY 2024-2025",
+  "2nd Trimester AY 2024-2025",
+  "1st Trimester AY 2024-2025",
+];
+
+// Maps display term names to the relative term number expected by POST /courses/fetch.
+// 0 = current active term, 1 = most recent past term, 2 = second most recent, etc.
+export const TERM_NUMBER_MAP: Record<string, number> = {
+  "3rd Trimester AY 2025-2026": 0,
+  "2nd Trimester AY 2025-2026": 1,
+  "1st Trimester AY 2025-2026": 2,
+  "3rd Trimester AY 2024-2025": 3,
+  "2nd Trimester AY 2024-2025": 4,
+  "1st Trimester AY 2024-2025": 5,
+};
+
+// part values as expected by POST /courses/fetch: 0=Manila, -1=Laguna
+export const CAMPUS_OPTIONS: { label: string; value: number }[] = [
+  { label: "Manila", value: 0 },
+  { label: "Laguna", value: -1 },
 ];
 
 export const FINDER_DAYS: DayKey[] = [
@@ -217,7 +237,11 @@ export function dayAbbreviation(day: DayKey) {
 }
 
 export function meetingDaysLabel(meetings: Meeting[]) {
-  return meetings.map((meeting) => dayAbbreviation(meeting.day)).join(" / ");
+  const seen = new Set<string>();
+  return meetings
+    .map((m) => dayAbbreviation(m.day))
+    .filter((abbr) => (seen.has(abbr) ? false : seen.add(abbr) && true))
+    .join(" / ");
 }
 
 export function meetingTimeLabel(meetings: Meeting[]) {

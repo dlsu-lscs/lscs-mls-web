@@ -33,7 +33,7 @@ export default function RootLayout({
           defer
         ></script>
       </head>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} suppressHydrationWarning>
           <Providers>{children}</Providers>
         </body>
     </html>
