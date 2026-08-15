@@ -24,6 +24,8 @@ export type Course = {
   enrolled: number;
   capacity: number;
   meetings: Meeting[];
+  term: string;
+  campus: string;
 };
 
 export type FilterKey =
@@ -34,7 +36,9 @@ export type FilterKey =
   | "day"
   | "room"
   | "modality"
-  | "enrolledCapacity";
+  | "enrolledCapacity"
+  | "campus"
+  | "term";
 
 export type CalendarEvent = {
   id: string;
@@ -106,6 +110,8 @@ export const FILTER_OPTIONS: { value: FilterKey; label: string }[] = [
   { value: "room", label: "Room" },
   { value: "modality", label: "Modality" },
   { value: "enrolledCapacity", label: "Enrolled Capacity" },
+  { value: "campus", label: "Campus" },
+  { value: "term", label: "Term" },
 ];
 
 export const COURSES: Course[] = [
@@ -123,6 +129,8 @@ export const COURSES: Course[] = [
       { day: "Monday", start: "09:15", end: "10:45", room: "AG1707" },
       { day: "Thursday", start: "09:15", end: "10:45", room: "AG1707" },
     ],
+    term: "3rd Trimester AY 2025-2026",
+    campus: "Manila",
   },
   {
     id: "csmath1-s14",
@@ -138,6 +146,8 @@ export const COURSES: Course[] = [
       { day: "Tuesday", start: "11:00", end: "12:30", room: "Zoom Room A" },
       { day: "Friday", start: "11:00", end: "12:30", room: "Zoom Room A" },
     ],
+    term: "3rd Trimester AY 2025-2026",
+    campus: "Manila",
   },
   {
     id: "sts-s19",
@@ -153,6 +163,8 @@ export const COURSES: Course[] = [
       { day: "Wednesday", start: "13:00", end: "14:30", room: "SJ110" },
       { day: "Friday", start: "13:00", end: "14:30", room: "SJ110" },
     ],
+    term: "3rd Trimester AY 2025-2026",
+    campus: "Manila",
   },
   {
     id: "geethic-s08",
@@ -168,6 +180,8 @@ export const COURSES: Course[] = [
       { day: "Tuesday", start: "08:00", end: "09:30", room: "Canvas + Zoom" },
       { day: "Thursday", start: "08:00", end: "09:30", room: "Canvas + Zoom" },
     ],
+    term: "2nd Trimester AY 2025-2026",
+    campus: "Manila",
   },
   {
     id: "dasalgo-s22",
@@ -183,6 +197,8 @@ export const COURSES: Course[] = [
       { day: "Monday", start: "14:45", end: "16:15", room: "G305" },
       { day: "Wednesday", start: "14:45", end: "16:15", room: "G305" },
     ],
+    term: "2nd Trimester AY 2025-2026",
+    campus: "Laguna",
   },
   {
     id: "itnet01-s05",
@@ -195,6 +211,8 @@ export const COURSES: Course[] = [
     enrolled: 26,
     capacity: 32,
     meetings: [{ day: "Tuesday", start: "16:00", end: "18:00", room: "M303" }],
+    term: "2nd Trimester AY 2025-2026",
+    campus: "Laguna",
   },
   {
     id: "csarch1-s03",
@@ -207,6 +225,8 @@ export const COURSES: Course[] = [
     enrolled: 24,
     capacity: 30,
     meetings: [{ day: "Thursday", start: "15:00", end: "18:00", room: "VEL201" }],
+    term: "1st Trimester AY 2025-2026",
+    campus: "Manila",
   },
 ];
 
@@ -273,6 +293,10 @@ export function getFilterValue(course: Course, filterKey: FilterKey) {
       return `${course.modality} ${course.remarks}`;
     case "enrolledCapacity":
       return `${course.enrolled}/${course.capacity}`;
+    case "campus":
+      return course.campus;
+    case "term":
+      return course.term;
     default:
       return "";
   }

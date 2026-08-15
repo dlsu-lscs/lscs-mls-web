@@ -68,6 +68,7 @@ export interface ApiCourseRow {
   section: string;
   modality: string | null;
   term: string | null;
+  campus: string | null;
   status: ApiCourseStatus;
   timeslots: ApiTimeslot[];
 }
@@ -135,7 +136,7 @@ export async function removeSelectedCourse(uid: number, courseId: number): Promi
   return apiFetch<void>(`/users/${uid}/courses/${courseId}`, { method: 'DELETE' });
 }
 
-// New endpoints 
+// Live ArchersHub session endpoints — used to pick which campus/term to sync via POST /courses/fetch.
 
 export interface ApiCampus {
   campusNo: number;
@@ -147,11 +148,6 @@ export interface ApiTerm {
   name: string;
 }
 
-export interface ApiCourseListItem {
-  courseId: number;
-  name: string;
-}
-
 export async function getCampuses(): Promise<ApiCampus[]> {
   return apiFetch<ApiCampus[]>('/campuses');
 }
@@ -160,6 +156,19 @@ export async function getTerms(): Promise<ApiTerm[]> {
   return apiFetch<ApiTerm[]>('/terms');
 }
 
-export async function getCourseList(campusNo: number, sessionId: number): Promise<ApiCourseListItem[]> {
-  return apiFetch<ApiCourseListItem[]>(`/courses/list?campusNo=${campusNo}&sessionId=${sessionId}`);
+// Local-DB reference endpoints — distinct unique values already synced into our database.
+// Note: courseRouter is mounted before archersHubRouter in the backend, so these
+// /courses/* paths always resolve here even though archersHubRouter also declares
+// a (now-unreachable) /courses/list route.
+
+export async function getCourseCampuses(): Promise<string[]> {
+  return apiFetch<string[]>('/courses/campuses');
+}
+
+export async function getCourseTerms(): Promise<string[]> {
+  return apiFetch<string[]>('/courses/terms');
+}
+
+export async function getCourseNames(): Promise<string[]> {
+  return apiFetch<string[]>('/courses/list');
 }

@@ -17,15 +17,17 @@ import {
   meetingTimeLabel,
 } from '@/lib/schedule-data';
 import { mapApiCourses } from '@/lib/api-mapper';
-import { getCoursesByName, getCourseList } from '@/services/api';
+import { getCoursesByName, getCourseCampuses, getCourseTerms, getCourseNames } from '@/services/api';
 
 const COMPACT_PREVIEW_DAYS: DayKey[] = [
   'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
 ];
 
-// Filter keys that should show a dropdown of unique values
+// Filter keys that should show a dropdown of unique values.
+// 'campus' and 'term' are sourced from the synced DB (see allCampuses/allTerms below)
+// rather than derived from the currently loaded search results.
 const DROPDOWN_FILTERS = new Set<FilterKey>([
-  'professor', 'modality', 'day', 'room',
+  'professor', 'modality', 'day', 'room', 'campus', 'term',
 ]);
 
 // ── Conflict detection ─────────────────────────────────────────────────────
@@ -67,7 +69,7 @@ function checkConflict(candidate: Course, selected: Course[]): ConflictResult {
 export default function CourseFinderWorkspace() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { selectedCourses, addCourse, removeCourse, hasCourse, campusNo, sessionId } = useSchedule();
+  const { selectedCourses, addCourse, removeCourse, hasCourse } = useSchedule();
 
   const [courseNameInput, setCourseNameInput] = useState('');
   const [submittedName, setSubmittedName] = useState('');
@@ -85,13 +87,17 @@ export default function CourseFinderWorkspace() {
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
 
-  // Reload course list whenever campus or term changes
+  // Reference data synced into the local DB — loaded once on mount.
+  const [allCampuses, setAllCampuses] = useState<string[]>([]);
+  const [allTerms, setAllTerms] = useState<string[]>([]);
+
   useEffect(() => {
-    if (campusNo === null || sessionId === null) return;
-    getCourseList(campusNo, sessionId)
-      .then((items) => setAllCourseNames(items.map((i) => i.name).sort()))
+    getCourseNames()
+      .then((names) => setAllCourseNames([...names].sort()))
       .catch(() => {});
-  }, [campusNo, sessionId]);
+    getCourseCampuses().then(setAllCampuses).catch(() => {});
+    getCourseTerms().then(setAllTerms).catch(() => {});
+  }, []);
 
   // Filtered suggestions — cap at 10 for performance
   const suggestions = useMemo(() => {
@@ -139,6 +145,11 @@ export default function CourseFinderWorkspace() {
   // ── Unique dropdown values for the active filter ─────────────────────────
 
   const dropdownOptions = useMemo(() => {
+    // Campus/term options come from every course synced into the DB, not just
+    // the currently loaded search results.
+    if (selectedFilter === 'campus') return allCampuses;
+    if (selectedFilter === 'term') return allTerms;
+
     if (!DROPDOWN_FILTERS.has(selectedFilter)) return [];
     const seen = new Set<string>();
     for (const course of courses) {
@@ -153,7 +164,7 @@ export default function CourseFinderWorkspace() {
       }
     }
     return Array.from(seen).sort();
-  }, [courses, selectedFilter]);
+  }, [courses, selectedFilter, allCampuses, allTerms]);
 
   // ── Filter courses ───────────────────────────────────────────────────────
 

@@ -47,6 +47,8 @@ export function mapApiCourses(rows: ApiCourseRow[]): Course[] {
       enrolled: row.status?.enrolled ?? 0,
       capacity: row.status?.enrollCap ?? 0,
       meetings,
+      term: row.term ?? '',
+      campus: row.campus ?? '',
     };
   });
 }
