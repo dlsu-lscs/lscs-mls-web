@@ -144,7 +144,17 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <div className="mt-10 space-y-4">
+          { /* Any Errors */}
+          <div className={`w-full flex items-center justify-center gap-4 rounded-[10px] px-4 py-4 font-semibold text-primary-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${authError ? "outline-[0.4px] outline-error-200 shadow-md/50 shadow-error-200 bg-error-50" : "bg-surface-50"}`}>
+            { authError && (
+              <>
+                <p className="font-bold text-sm text-error-500">!</p>
+                <p className="text-sm font-semibold">{authError}</p>
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
             {GOOGLE_CLIENT_ID ? (
               <button
                 type="button"

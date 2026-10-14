@@ -36,6 +36,18 @@
 	--color-secondary-900: oklch(84.27% 0.15 94.37deg);
 	--color-secondary-950: oklch(82.99% 0.15 94.43deg);
 
+  --color-error-50: oklch(95.08% 0.02 13.48deg);
+	--color-error-100: oklch(85.28% 0.07 17.66deg);
+	--color-error-200: oklch(76.35% 0.13 20.62deg);
+	--color-error-300: oklch(68.74% 0.19 23.18deg);
+	--color-error-400: oklch(63.86% 0.23 27.03deg);
+	--color-error-500: oklch(61.92% 0.25 29.16deg);
+	--color-error-600: oklch(58.15% 0.24 29.14deg);
+	--color-error-700: oklch(54.13% 0.22 29.12deg);
+	--color-error-800: oklch(50.25% 0.2 29.26deg);
+	--color-error-900: oklch(46.08% 0.19 29.26deg);
+	--color-error-950: oklch(42.03% 0.17 29.27deg);
+
   --color-surface-50: oklch(97.02% 0 none);
 	--color-surface-100: oklch(88.22% 0 none);
 	--color-surface-200: oklch(79.52% 0 none);
