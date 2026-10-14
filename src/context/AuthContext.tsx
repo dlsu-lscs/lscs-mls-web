@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { loginWithGoogle } from '@/services/api';
 import { JwtPayload, jwtDecode } from 'jwt-decode';
+import Cookies from 'js-cookie';
 
 // ---------------------------------------------------------------------------
 // Types
@@ -59,7 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Rehydrate from localStorage on mount
+  // Rehydrate from localstorage on mount
   useEffect(() => {
     try {
       const saved = localStorage.getItem('user');
@@ -68,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch {
       localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      Cookies.remove('token');
     } finally {
       setLoading(false);
     }
@@ -89,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     // 4. Persist token
-    localStorage.setItem('token', jwt);
+    Cookies.set('token', jwt, { expires: 7 });
 
     // 5. Build user object using the BACKEND field names (givenName, not given_name)
     const userData: AuthUser = {
@@ -104,7 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('token');
+    Cookies.remove('token');
     localStorage.removeItem('user');
     setUser(null);
     window.location.href = '/login';
