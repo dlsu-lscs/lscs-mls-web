@@ -100,7 +100,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left Side — LSCS Brand */}
       <div className="flex w-full md:w-1/2 bg-[#002D57]">
         <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 py-14 text-center">
@@ -125,7 +125,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side — Google Auth */}
-      <div className="w-full md:w-1/2 min-h-[25vh] flex items-center justify-center bg-surface-50 px-8 py-10 md:py-12">
+      <div className="w-full md:w-1/2 min-h-[25vh] flex relative items-center justify-center bg-surface-50 px-8 py-10 md:py-12">
         <div className="w-full max-w-md text-left flex flex-col gap-4">
           <div className="flex flex-col items-left">
             <div className="font-bold text-secondary-500 [-webkit-text-stroke:1.5px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
@@ -202,6 +202,15 @@ export default function LoginPage() {
               By continuing you agree to our Terms and Privacy Policy.
             </p>
           </div>
+        </div>
+        <div className="opacity-30 absolute -bottom-16 -right-24">
+          <Image
+            src="/lscs-logo.png"
+            alt="LSCS Logo"
+            width={483}
+            height={495}
+            className="object-contain drop-shadow-2xl w-xs"
+          />
         </div>
       </div>
     </div>
