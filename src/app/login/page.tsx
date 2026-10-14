@@ -125,8 +125,8 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side — Google Auth */}
-      <div className="w-full md:w-1/2 min-h-[25vh] flex items-center justify-center bg-white px-8 py-10 md:py-12">
-        <div className="w-full max-w-md text-left">
+      <div className="w-full md:w-1/2 min-h-[25vh] flex items-center justify-center bg-surface-50 px-8 py-10 md:py-12">
+        <div className="w-full max-w-md text-left flex flex-col gap-4">
           <div className="flex flex-col items-left">
             <div className="font-bold text-secondary-500 [-webkit-text-stroke:1.5px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
               {isPreviousUser ? (
@@ -160,9 +160,9 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => window.__googleClient?.requestAccessToken()}
                 disabled={!googleReady || isLoggingIn}
-                className="w-full flex items-center justify-center gap-3 rounded-full px-4 py-3 font-semibold text-[#3D2A08] bg-[#E8C468] shadow-[0_12px_24px_rgba(232,196,104,0.35)] hover:bg-[#f0d17c] hover:shadow-[0_16px_40px_rgba(232,196,104,0.45)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-3 rounded-[10px] outline-[0.4px] outline-surface-400 px-4 py-3 font-semibold text-primary-900 bg-surface-50 shadow-md/50 shadow-surface-800 hover:bg-surface-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white shadow">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full">
                   {/* Google G icon */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -198,12 +198,8 @@ export default function LoginPage() {
               </p>
             )}
 
-            {authError && (
-              <p className="text-sm text-red-600 font-medium">{authError}</p>
-            )}
-
-            <p className="text-sm text-gray-600">
-              Sign in with your DLSU Google account.
+            <p className="text-sm font-semibold text-surface-800 text-center">
+              By continuing you agree to our Terms and Privacy Policy.
             </p>
           </div>
         </div>
