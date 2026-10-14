@@ -32,6 +32,7 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
+  const [isPreviousUser] = useState(Boolean(localStorage.getItem('previous-user')))
 
   const handleGoogleResponse = useCallback(
     async (response: { access_token: string }) => {
@@ -39,6 +40,7 @@ export default function LoginPage() {
       setAuthError(null);
       try {
         await login(response.access_token);
+        if (!isPreviousUser) localStorage.setItem('previous-user', JSON.stringify(true));
         router.push('/');
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Login failed';
@@ -98,9 +100,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col-reverse md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row">
       {/* Left Side — LSCS Brand */}
-      <div className="flex w-full md:w-2/5 bg-[#002D57]">
+      <div className="flex w-full md:w-1/2 bg-[#002D57]">
         <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 py-14 text-center">
           <div className="flex flex-col items-center gap-6">
             <div className="mt-4 md:mt-0">
@@ -123,19 +125,22 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side — Google Auth */}
-      <div className="w-full md:w-3/5 min-h-[25vh] flex items-center justify-center bg-white px-8 py-10 md:py-12">
-        <div className="w-full max-w-md text-center">
-          <div className="flex flex-col items-center">
-            <Image
-              src="/macky.svg"
-              alt="Macky Icon"
-              width={220}
-              height={220}
-              className="object-contain drop-shadow-lg animate-float transition-transform duration-300 hover:scale-110"
-              priority
-            />
-            <p className="mt-6 text-3xl font-semibold text-[#002D57] drop-shadow-[0_6px_18px_rgba(0,45,87,0.18)]">
-              Plan smart, Do easy.
+      <div className="w-full md:w-1/2 min-h-[25vh] flex items-center justify-center bg-white px-8 py-10 md:py-12">
+        <div className="w-full max-w-md text-left">
+          <div className="flex flex-col items-left">
+            <div className="font-bold text-secondary-500 [-webkit-text-stroke:1.5px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
+              {isPreviousUser ? (
+                <div className="text-5xl">
+                  Welcome back!
+                </div>
+              ) : (
+                <div className="text-[2.5rem]">
+                  Welcome to MLS-API.
+                </div>
+              )}
+            </div>  
+            <p className="text-sm font-semibold text-surface-400">
+              Sign in with your DLSU account to get started.
             </p>
           </div>
 
