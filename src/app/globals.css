@@ -13,52 +13,62 @@
 
   /* Generated with https://themes.skeleton.dev/themes/create from Figma Design */
   --color-primary-50: oklch(91.66% 0.04 257.51deg);
-	--color-primary-100: oklch(83.09% 0.05 254.69deg);
-	--color-primary-200: oklch(74.52% 0.07 250.85deg);
-	--color-primary-300: oklch(65.71% 0.08 250.83deg);
-	--color-primary-400: oklch(56.91% 0.09 249.32deg);
-	--color-primary-500: oklch(47.91% 0.11 250.4deg);
-	--color-primary-600: oklch(38.01% 0.08 256.15deg);
-	--color-primary-700: oklch(38.98% 0.08 250.72deg);
-	--color-primary-800: oklch(34.26% 0.07 252.39deg);
-	--color-primary-900: oklch(26.9% 0.04 261.94deg);
-	--color-primary-950: oklch(24.54% 0.04 256.69deg);
+  --color-primary-100: oklch(83.09% 0.05 254.69deg);
+  --color-primary-200: oklch(74.52% 0.07 250.85deg);
+  --color-primary-300: oklch(65.71% 0.08 250.83deg);
+  --color-primary-400: oklch(56.91% 0.09 249.32deg);
+  --color-primary-500: oklch(47.91% 0.11 250.4deg);
+  --color-primary-600: oklch(38.51% 0.08 256.15deg);
+  --color-primary-700: oklch(38.98% 0.08 250.72deg);
+  --color-primary-800: oklch(34.26% 0.07 252.39deg);
+  --color-primary-900: oklch(26.9% 0.04 261.94deg);
+  --color-primary-950: oklch(24.54% 0.04 256.69deg);
 
   --color-secondary-50: oklch(93.45% 0.04 96.58deg);
-	--color-secondary-100: oklch(92.48% 0.07 96.77deg);
-	--color-secondary-200: oklch(91.42% 0.1 96.08deg);
-	--color-secondary-300: oklch(90.6% 0.13 96.44deg);
-	--color-secondary-400: oklch(89.77% 0.15 95.47deg);
-	--color-secondary-500: oklch(89.24% 0.17 94.65deg);
-	--color-secondary-600: oklch(87.98% 0.16 94.72deg);
-	--color-secondary-700: oklch(86.72% 0.16 94.73deg);
-	--color-secondary-800: oklch(85.54% 0.16 94.38deg);
-	--color-secondary-900: oklch(84.27% 0.15 94.37deg);
-	--color-secondary-950: oklch(82.99% 0.15 94.43deg);
+  --color-secondary-100: oklch(92.48% 0.07 96.77deg);
+  --color-secondary-200: oklch(91.42% 0.1 96.08deg);
+  --color-secondary-300: oklch(90.6% 0.13 96.44deg);
+  --color-secondary-400: oklch(89.77% 0.15 95.47deg);
+  --color-secondary-500: oklch(89.24% 0.17 94.65deg);
+  --color-secondary-600: oklch(87.98% 0.16 94.72deg);
+  --color-secondary-700: oklch(86.72% 0.16 94.73deg);
+  --color-secondary-800: oklch(85.54% 0.16 94.38deg);
+  --color-secondary-900: oklch(84.27% 0.15 94.37deg);
+  --color-secondary-950: oklch(82.99% 0.15 94.43deg);
 
   --color-error-50: oklch(95.08% 0.02 13.48deg);
-	--color-error-100: oklch(85.28% 0.07 17.66deg);
-	--color-error-200: oklch(76.35% 0.13 20.62deg);
-	--color-error-300: oklch(68.74% 0.19 23.18deg);
-	--color-error-400: oklch(63.86% 0.23 27.03deg);
-	--color-error-500: oklch(61.92% 0.25 29.16deg);
-	--color-error-600: oklch(58.15% 0.24 29.14deg);
-	--color-error-700: oklch(54.13% 0.22 29.12deg);
-	--color-error-800: oklch(50.25% 0.2 29.26deg);
-	--color-error-900: oklch(46.08% 0.19 29.26deg);
-	--color-error-950: oklch(42.03% 0.17 29.27deg);
+  --color-error-100: oklch(85.28% 0.07 17.66deg);
+  --color-error-200: oklch(76.35% 0.13 20.62deg);
+  --color-error-300: oklch(68.74% 0.19 23.18deg);
+  --color-error-400: oklch(63.86% 0.23 27.03deg);
+  --color-error-500: oklch(61.92% 0.25 29.16deg);
+  --color-error-600: oklch(58.15% 0.24 29.14deg);
+  --color-error-700: oklch(54.13% 0.22 29.12deg);
+  --color-error-800: oklch(50.25% 0.2 29.26deg);
+  --color-error-900: oklch(46.08% 0.19 29.26deg);
+  --color-error-950: oklch(42.03% 0.17 29.27deg);
 
   --color-surface-50: oklch(97.02% 0 none);
-	--color-surface-100: oklch(88.22% 0 none);
-	--color-surface-200: oklch(79.52% 0 none);
-	--color-surface-300: oklch(70.25% 0 none);
-	--color-surface-400: oklch(61% 0 none);
-	--color-surface-500: oklch(51.03% 0 none);
-	--color-surface-600: oklch(43.86% 0 none);
-	--color-surface-700: oklch(36% 0 none);
-	--color-surface-800: oklch(26.99% 0.01 240.14deg);
-	--color-surface-900: oklch(19.13% 0 none);
-	--color-surface-950: oklch(0% 0 none);
+  --color-surface-100: oklch(88.22% 0 none);
+  --color-surface-200: oklch(79.52% 0 none);
+  --color-surface-300: oklch(70.25% 0 none);
+  --color-surface-400: oklch(61% 0 none);
+  --color-surface-500: oklch(51.03% 0 none);
+  --color-surface-600: oklch(43.86% 0 none);
+  --color-surface-700: oklch(36% 0 none);
+  --color-surface-800: oklch(26.99% 0.01 240.14deg);
+  --color-surface-900: oklch(19.13% 0 none);
+  --color-surface-950: oklch(0% 0 none);
+
+  /* Animation */
+  --animate-vertical-scroll-one: vertical-scroll 60s linear infinite;
+  --animate-vertical-scroll-two: vertical-scroll 62s linear infinite;
+  --animate-vertical-scroll-three: vertical-scroll 64s linear infinite;
+
+  @keyframes vertical-scroll {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(calc(-50% - 0.5rem)); }
+  }
 }
 
 * {

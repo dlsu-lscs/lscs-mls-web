@@ -32,7 +32,7 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
-  const [isPreviousUser] = useState(Boolean(localStorage.getItem('previous-user')))
+  const [isPreviousUser, setIsPreviousUser] = useState(false)
 
   const handleGoogleResponse = useCallback(
     async (response: { access_token: string }) => {
@@ -89,6 +89,14 @@ export default function LoginPage() {
     }
   }, [handleGoogleResponse]);
 
+  useEffect(() => {
+    try {
+      setIsPreviousUser(Boolean(localStorage.getItem('previous-user')));
+    } catch (e) {
+      console.error(e);
+    }
+  })
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#002D57]">
@@ -102,25 +110,67 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left Side — LSCS Brand */}
-      <div className="flex w-full md:w-1/2 bg-[#002D57]">
-        <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 py-14 text-center">
-          <div className="flex flex-col items-center gap-6">
-            <div className="mt-4 md:mt-0">
-              <Image
-                src="/lscs-logo.png"
-                alt="LSCS Logo"
-                width={280}
-                height={280}
-                className="object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105"
-              />
+      <div className="flex relative w-full md:w-1/2 bg-primary-600">
+        {/* Background */}
+        <div className="absolute inset-0 z-0 flex gap-4 px-4 flex-row items-start select-none pointer-events-none blur-xs">
+          <div className="flex-1 flex flex-col gap-4 animate-vertical-scroll-one will-change-transform [animation-delay:-10s]">
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
             </div>
-            <h1 className="text-[clamp(2.75rem,5vw,4.5rem)] font-extrabold text-[#E8C468] tracking-[0.22em] drop-shadow-[0_0_14px_rgba(232,196,104,0.45)] uppercase">
-              MackyDo
+            <div className="w-full flex flex-col gap-4" aria-hidden="true">
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col gap-4 animate-vertical-scroll-two will-change-transform [animation-delay:-24s]">
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+          </div>
+          <div className="flex-1 flex flex-col gap-4 animate-vertical-scroll-three will-change-transform [animation-delay:-28s]">
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+          </div>
+        </div>
+        {/* Foreground */}
+        <div className="flex h-full w-full z-1 flex-col items-end justify-center gap-4 px-4 py-14 text-center">
+          <div className="flex flex-col items-end gap-6">
+            <h1 className="text-8xl font-extrabold text-surface-50 tracking-widest drop-shadow-lg drop-shadow-surface-950 [-webkit-text-stroke:2px_var(--color-surface-950)] uppercase">
+              MLS-API
             </h1>
           </div>
-          <p className="text-white text-sm tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.35)]">
-            Welcome back!
-          </p>
         </div>
       </div>
 
