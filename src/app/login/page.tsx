@@ -14,6 +14,7 @@ declare global {
             client_id: string;
             scope: string;
             callback: (response: { access_token: string }) => void;
+            error_callback: (error: { type: string; message?: string }) => void;
           }) => { requestAccessToken: () => void };
         };
       };
@@ -32,11 +33,23 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
-  const [isPreviousUser, setIsPreviousUser] = useState(false)
+  const [isPreviousUser, setIsPreviousUser] = useState(false);
+
+  const handleAuthErrors = useCallback(
+    (error: { type: string; message?: string }) => {
+      const message = (
+        error.type === "popup_closed" ? "Sign-in was cancelled. Please try again." 
+        : error.type.startsWith("HTTP 4") ? "Please check your internet connection and try again."
+        : error.type
+      )
+      setAuthError(message);
+      setIsLoggingIn(false);
+    },
+    []
+  )
 
   const handleGoogleResponse = useCallback(
     async (response: { access_token: string }) => {
-      setIsLoggingIn(true);
       setAuthError(null);
       try {
         await login(response.access_token);
@@ -44,7 +57,7 @@ export default function LoginPage() {
         router.push('/');
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Login failed';
-        setAuthError(message);
+        handleAuthErrors({type: message});
       } finally {
         setIsLoggingIn(false);
       }
@@ -70,6 +83,7 @@ export default function LoginPage() {
         client_id: GOOGLE_CLIENT_ID,
         scope: 'email profile',
         callback: handleGoogleResponse,
+        error_callback: handleAuthErrors
       });
 
       window.__googleClient = client;
@@ -199,7 +213,7 @@ export default function LoginPage() {
             { authError && (
               <>
                 <p className="font-bold text-sm text-error-500">!</p>
-                <p className="text-sm font-semibold">{authError}</p>
+                <p className="text-sm font-semibold">{authError ? `Error: ${authError}` : ""}</p>
               </>
             )}
           </div>
@@ -208,9 +222,9 @@ export default function LoginPage() {
             {GOOGLE_CLIENT_ID ? (
               <button
                 type="button"
-                onClick={() => window.__googleClient?.requestAccessToken()}
+                onClick={() => {setIsLoggingIn(true); window.__googleClient?.requestAccessToken();}}
                 disabled={!googleReady || isLoggingIn}
-                className="w-full flex items-center justify-center gap-3 rounded-[10px] outline-[0.4px] outline-surface-400 px-4 py-3 font-semibold text-primary-900 bg-surface-50 shadow-md/50 shadow-surface-800 hover:bg-surface-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-3 rounded-[10px] outline-[0.4px] outline-surface-400 px-4 py-3 font-semibold text-primary-900 bg-surface-50 shadow-md/50 shadow-surface-800 hover:bg-surface-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:bg-surface-200"
               >
                 <span className="inline-flex h-8 w-8 items-center justify-center rounded-full">
                   {/* Google G icon */}
@@ -237,7 +251,7 @@ export default function LoginPage() {
                     />
                   </svg>
                 </span>
-                {isLoggingIn ? 'Signing you in…' : 'Continue with Google'}
+                {isLoggingIn ? 'Connecting to Google...' : 'Continue with Google'}
               </button>
             ) : (
               <p className="text-sm text-amber-600 font-medium bg-amber-50 rounded-lg px-4 py-3">

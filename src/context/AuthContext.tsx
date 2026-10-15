@@ -85,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // 3. Enforce DLSU-only emails
     if (!decoded.email?.endsWith('@dlsu.edu.ph')) {
       throw new Error(
-        'Please use your DLSU email (@dlsu.edu.ph) to sign in.',
+        'Please choose your DLSU email (@dlsu.edu.ph) to sign in.',
       );
     }
 
