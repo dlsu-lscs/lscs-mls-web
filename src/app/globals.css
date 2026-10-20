@@ -10,8 +10,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-roboto-flex);
-  --font-mono: var(--font-roboto-mono);
+  --font-sans: var(--font-inter), sans-serif;
+  --font-roboto: var(--font-roboto-flex), sans-serif;
+  --font-mono: var(--font-roboto-mono), monospace;
 
   /* Generated with https://themes.skeleton.dev/themes/create from Figma Design */
   --color-primary-50: oklch(91.66% 0.04 257.51deg);
@@ -84,7 +85,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }
 
 ::selection {
