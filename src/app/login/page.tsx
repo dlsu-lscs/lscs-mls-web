@@ -226,9 +226,8 @@ export default function LoginPage() {
 
       {/* Right Side — Google Auth */}
       <div className="w-full md:w-1/2 min-h-[25vh] flex-1 flex relative items-center justify-center bg-surface-50 dark:bg-surface-950 px-8 py-10 md:py-12">
-        <div className="w-full max-w-md text-left flex flex-col gap-4">
-          <div className="flex flex-col items-left">
         <div className="z-1 w-full max-w-md text-left flex flex-col gap-4">
+          <div className="flex flex-col items-left text-center lg:text-left">
             <div className="font-bold text-secondary-500 [paint-order:stroke_fill] [-webkit-text-stroke:4px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
               {isPreviousUser ? (
                 <div className="text-5xl">
@@ -246,7 +245,7 @@ export default function LoginPage() {
           </div>
 
           { /* Any Errors */}
-          <div className={`w-full flex items-center justify-center gap-4 rounded-[10px] px-4 py-4 font-semibold text-primary-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${authError ? "outline-[0.4px] outline-error-200 shadow-md/50 shadow-error-200 bg-error-50" : "bg-surface-50"}`}>
+          <div className={`w-full flex items-center justify-center gap-4 rounded-[10px] px-4 py-4 font-semibold text-primary-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${authError ? "outline-[0.4px] outline-error-200 shadow-md/50 shadow-error-200 bg-error-50" : ""}`}>
             { authError && (
               <>
                 <p className="font-bold text-sm text-error-500">!</p>
