@@ -34,6 +34,8 @@ export default function LoginPage() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
   const [isPreviousUser, setIsPreviousUser] = useState(false);
+  const [reducedMotionEnabled, setReducedMotion] = useState(false);
+  const [reducedMotionToggle, setReduceMotionToggle] = useState(false);
 
   const handleAuthErrors = useCallback(
     (error: { type: string; message?: string }) => {
@@ -64,6 +66,14 @@ export default function LoginPage() {
     },
     [login, router],
   );
+  
+  const handleReducedMotionToggle = () => {
+    setReduceMotionToggle(previous => !previous);
+    setReducedMotion(previous => {
+      localStorage.setItem('reduced-motion', JSON.stringify(!previous));
+      return !previous;
+    });
+  }
 
   // Redirect to home if already authenticated
   useEffect(() => {
@@ -112,6 +122,16 @@ export default function LoginPage() {
     }
   }, []);
 
+  // Get reduced motion preference
+  useEffect(() => {
+    const localPreference = localStorage.getItem('reduced-motion');
+    const systemPreference = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    // Prioritize set preference from localStorage
+    if (localPreference !== null) { setReducedMotion(localPreference === 'true'); setReduceMotionToggle(localPreference === 'true'); }
+    else { setReducedMotion(systemPreference); setReduceMotionToggle(systemPreference); console.log(systemPreference) };
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#002D57]">
@@ -128,7 +148,7 @@ export default function LoginPage() {
       <div className="flex relative w-full md:w-1/2 bg-primary-600">
         {/* Background */}
         <div className="absolute inset-0 z-0 flex gap-4 px-4 flex-row items-start select-none pointer-events-none blur-xs">
-          <div className="flex-1 flex flex-col gap-4 animate-vertical-scroll-one will-change-transform [animation-delay:-10s]">
+          <div className={`flex-1 flex flex-col gap-4 ${reducedMotionEnabled ? `` : `animate-vertical-scroll-one will-change-transform [animation-delay:-10s]`}`}>
             <div className="w-full flex flex-col gap-4">
               <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
@@ -136,23 +156,17 @@ export default function LoginPage() {
               <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
             </div>
-            <div className="w-full flex flex-col gap-4" aria-hidden="true">
-              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
             { !reducedMotionEnabled && (
               <div className="w-full flex flex-col gap-4" aria-hidden="true">
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
                 <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
                 <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
                 <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               </div>
             ) }
           </div>
-            <div className="w-full flex flex-col gap-4">
-              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-            </div>
+          <div className={`flex-1 flex flex-col gap-4 ${reducedMotionEnabled ? `` : `animate-vertical-scroll-two will-change-transform [animation-delay:-24s]`}`}>
             <div className="w-full flex flex-col gap-4">
               <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
