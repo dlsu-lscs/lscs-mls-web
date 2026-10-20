@@ -14,6 +14,7 @@ declare global {
             client_id: string;
             scope: string;
             callback: (response: { access_token: string }) => void;
+            error_callback: (error: { type: string; message?: string }) => void;
           }) => { requestAccessToken: () => void };
         };
       };
@@ -32,23 +33,47 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
+  const [isPreviousUser, setIsPreviousUser] = useState(false);
+  const [reducedMotionEnabled, setReducedMotion] = useState(false);
+  const [reducedMotionToggle, setReduceMotionToggle] = useState(false);
+
+  const handleAuthErrors = useCallback(
+    (error: { type: string; message?: string }) => {
+      const message = (
+        error.type === "popup_closed" ? "Sign-in was cancelled. Please try again." 
+        : error.type.startsWith("HTTP 4") ? "Please check your internet connection and try again."
+        : error.type
+      )
+      setAuthError(message);
+      setIsLoggingIn(false);
+    },
+    []
+  )
 
   const handleGoogleResponse = useCallback(
     async (response: { access_token: string }) => {
-      setIsLoggingIn(true);
       setAuthError(null);
       try {
         await login(response.access_token);
+        if (!isPreviousUser) localStorage.setItem('previous-user', JSON.stringify(true));
         router.push('/');
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : 'Login failed';
-        setAuthError(message);
+        handleAuthErrors({type: message});
       } finally {
         setIsLoggingIn(false);
       }
     },
     [login, router],
   );
+  
+  const handleReducedMotionToggle = () => {
+    setReduceMotionToggle(previous => !previous);
+    setReducedMotion(previous => {
+      localStorage.setItem('reduced-motion', JSON.stringify(!previous));
+      return !previous;
+    });
+  }
 
   // Redirect to home if already authenticated
   useEffect(() => {
@@ -68,6 +93,7 @@ export default function LoginPage() {
         client_id: GOOGLE_CLIENT_ID,
         scope: 'email profile',
         callback: handleGoogleResponse,
+        error_callback: handleAuthErrors
       });
 
       window.__googleClient = client;
@@ -87,10 +113,29 @@ export default function LoginPage() {
     }
   }, [handleGoogleResponse]);
 
+  // Get if user previously logged in
+  useEffect(() => {
+    try {
+      setIsPreviousUser(localStorage.getItem('previous-user') === 'true');
+    } catch (e) {
+      console.error(e);
+    }
+  }, []);
+
+  // Get reduced motion preference
+  useEffect(() => {
+    const localPreference = localStorage.getItem('reduced-motion');
+    const systemPreference = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    
+    // Prioritize set preference from localStorage
+    if (localPreference !== null) { setReducedMotion(localPreference === 'true'); setReduceMotionToggle(localPreference === 'true'); }
+    else { setReducedMotion(systemPreference); setReduceMotionToggle(systemPreference); console.log(systemPreference) };
+  }, []);
+
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#002D57]">
-        <div className="animate-pulse text-[#E8C468] text-xl font-semibold">
+      <div className="min-h-screen flex items-center justify-center bg-primary-950">
+        <div className="animate-pulse text-secondary-500 text-xl font-semibold">
           Loading…
         </div>
       </div>
@@ -98,56 +143,126 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col-reverse md:flex-row">
+    <div className="min-h-screen flex flex-col md:flex-row overflow-hidden">
       {/* Left Side — LSCS Brand */}
-      <div className="flex w-full md:w-2/5 bg-[#002D57]">
-        <div className="flex h-full w-full flex-col items-center justify-center gap-4 px-4 py-14 text-center">
-          <div className="flex flex-col items-center gap-6">
-            <div className="mt-4 md:mt-0">
-              <Image
-                src="/lscs-logo.png"
-                alt="LSCS Logo"
-                width={280}
-                height={280}
-                className="object-contain drop-shadow-2xl transition-transform duration-300 hover:scale-105"
-              />
+      <div className="flex relative w-full md:w-1/2 bg-primary-600">
+        {/* Background */}
+        <div className="absolute inset-0 z-0 flex gap-4 px-4 flex-row items-start select-none pointer-events-none blur-xs">
+          <div className={`flex-1 flex flex-col gap-4 ${reducedMotionEnabled ? `` : `animate-vertical-scroll-one will-change-transform [animation-delay:-10s]`}`}>
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
             </div>
-            <h1 className="text-[clamp(2.75rem,5vw,4.5rem)] font-extrabold text-[#E8C468] tracking-[0.22em] drop-shadow-[0_0_14px_rgba(232,196,104,0.45)] uppercase">
-              MackyDo
-            </h1>
+            { !reducedMotionEnabled && (
+              <div className="w-full flex flex-col gap-4" aria-hidden="true">
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              </div>
+            ) }
           </div>
-          <p className="text-white text-sm tracking-[0.3em] uppercase drop-shadow-[0_0_8px_rgba(255,255,255,0.35)]">
-            Welcome back!
-          </p>
+          <div className={`flex-1 flex flex-col gap-4 ${reducedMotionEnabled ? `` : `animate-vertical-scroll-two will-change-transform [animation-delay:-24s]`}`}>
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+            { !reducedMotionEnabled && (
+              <div className="w-full flex flex-col gap-4">
+                <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              </div>
+            ) }
+          </div>
+          <div className={`flex-1 flex flex-col gap-4 ${reducedMotionEnabled ? `` : `animate-vertical-scroll-three will-change-transform [animation-delay:-28s]`}`}>
+            <div className="w-full flex flex-col gap-4">
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+            </div>
+            { !reducedMotionEnabled && (
+              <div className="w-full flex flex-col gap-4">
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              </div>
+            ) }
+          </div>
+        </div>
+        {/* Foreground */}
+        <div className="flex h-full w-full z-1 flex-col items-center lg:items-end justify-center gap-4 px-4 py-14 text-center">
+          <div className="flex flex-col items-center lg:items-end gap-6">
+            <h1 className="text-8xl font-extrabold text-surface-50 tracking-widest drop-shadow-lg drop-shadow-surface-950 [paint-order:stroke_fill] [-webkit-text-stroke:4px_var(--color-surface-950)] uppercase">
+              MLS-API
+            </h1>
+            <div>
+              <button 
+                className={`text-center p-2 px-4 rounded-[10px] outline-2 ${reducedMotionToggle ? 'bg-error-500/20 outline-error-800 hover:bg-error-500/40' : 'bg-primary-500/20 outline-primary-800 hover:bg-primary-500/40'} text-surface-50 transition-all backdrop-blur-sm`}
+                onClick={handleReducedMotionToggle}
+                aria-pressed={reducedMotionToggle}
+              >
+                <p>Reduced Motion: <b>{reducedMotionToggle ? "ON" : "OFF"}</b></p>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
       {/* Right Side — Google Auth */}
-      <div className="w-full md:w-3/5 min-h-[25vh] flex items-center justify-center bg-white px-8 py-10 md:py-12">
-        <div className="w-full max-w-md text-center">
-          <div className="flex flex-col items-center">
-            <Image
-              src="/macky.svg"
-              alt="Macky Icon"
-              width={220}
-              height={220}
-              className="object-contain drop-shadow-lg animate-float transition-transform duration-300 hover:scale-110"
-              priority
-            />
-            <p className="mt-6 text-3xl font-semibold text-[#002D57] drop-shadow-[0_6px_18px_rgba(0,45,87,0.18)]">
-              Plan smart, Do easy.
+      <div className="w-full md:w-1/2 min-h-[25vh] flex-1 flex relative items-center justify-center bg-surface-50 dark:bg-surface-950 px-8 py-10 md:py-12">
+        <div className="z-1 w-full max-w-md text-left flex flex-col gap-4">
+          <div className="flex flex-col items-left text-center lg:text-left">
+            <div className="font-bold text-secondary-500 [paint-order:stroke_fill] [-webkit-text-stroke:4px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
+              {isPreviousUser ? (
+                <div className="text-5xl">
+                  Welcome back!
+                </div>
+              ) : (
+                <div className="text-[2.5rem]">
+                  Welcome to MLS-API.
+                </div>
+              )}
+            </div>  
+            <p className="text-sm font-semibold text-surface-400">
+              Sign in with your DLSU account to get started.
             </p>
           </div>
 
-          <div className="mt-10 space-y-4">
+          { /* Any Errors */}
+          <div className={`w-full flex items-center justify-center gap-4 rounded-[10px] px-4 py-4 font-semibold text-primary-900 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed ${authError ? "outline-[0.4px] outline-error-200 shadow-md/50 shadow-error-200 bg-error-50" : ""}`}>
+            { authError && (
+              <>
+                <p className="font-bold text-sm text-error-500">!</p>
+                <p className="text-sm font-semibold">{authError ? `Error: ${authError}` : ""}</p>
+              </>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2">
             {GOOGLE_CLIENT_ID ? (
               <button
                 type="button"
-                onClick={() => window.__googleClient?.requestAccessToken()}
+                onClick={() => {setIsLoggingIn(true); window.__googleClient?.requestAccessToken();}}
                 disabled={!googleReady || isLoggingIn}
-                className="w-full flex items-center justify-center gap-3 rounded-full px-4 py-3 font-semibold text-[#3D2A08] bg-[#E8C468] shadow-[0_12px_24px_rgba(232,196,104,0.35)] hover:bg-[#f0d17c] hover:shadow-[0_16px_40px_rgba(232,196,104,0.45)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full flex items-center justify-center gap-3 rounded-[10px] outline-[0.4px] outline-surface-400 px-4 py-3 font-semibold text-primary-900 bg-surface-50 shadow-md/50 shadow-surface-800 hover:bg-surface-400 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:bg-surface-200"
               >
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white shadow">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full">
                   {/* Google G icon */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -172,7 +287,7 @@ export default function LoginPage() {
                     />
                   </svg>
                 </span>
-                {isLoggingIn ? 'Signing you in…' : 'Continue with Google'}
+                {isLoggingIn ? 'Connecting to Google...' : 'Continue with Google'}
               </button>
             ) : (
               <p className="text-sm text-amber-600 font-medium bg-amber-50 rounded-lg px-4 py-3">
@@ -183,14 +298,20 @@ export default function LoginPage() {
               </p>
             )}
 
-            {authError && (
-              <p className="text-sm text-red-600 font-medium">{authError}</p>
-            )}
-
-            <p className="text-sm text-gray-600">
-              Sign in with your DLSU Google account.
+            <p className="text-sm font-semibold text-surface-800 text-center">
+              By continuing you agree to our Terms and Privacy Policy.
             </p>
           </div>
+        </div>
+        <div className="opacity-30 absolute -bottom-16 -right-24">
+          <Image
+            src="/lscs-logo.png"
+            alt="LSCS Logo"
+            width={483}
+            height={495}
+            draggable="false"
+            className="select-none object-contain drop-shadow-2xl w-xs"
+          />
         </div>
       </div>
     </div>
