@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-import { Roboto_Flex, Roboto_Mono } from "next/font/google";
+import { Inter, Roboto_Flex, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import Providers from "@/providers/Providers";
+
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
 
 const robotoFlex = Roboto_Flex({
   variable: "--font-roboto-flex",
@@ -33,7 +38,7 @@ export default function RootLayout({
           defer
         ></script>
       </head>
-        <body className={`${robotoFlex.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
+        <body className={`${inter.variable} ${robotoFlex.variable} ${robotoMono.variable} antialiased`} suppressHydrationWarning>
           <Providers>{children}</Providers>
         </body>
     </html>
