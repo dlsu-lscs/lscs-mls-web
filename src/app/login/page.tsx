@@ -208,7 +208,7 @@ export default function LoginPage() {
         {/* Foreground */}
         <div className="flex h-full w-full z-1 flex-col items-center lg:items-end justify-center gap-4 px-4 py-14 text-center">
           <div className="flex flex-col items-center lg:items-end gap-6">
-            <h1 className="text-8xl font-extrabold text-surface-50 tracking-widest drop-shadow-lg drop-shadow-surface-950 [-webkit-text-stroke:2px_var(--color-surface-950)] uppercase">
+            <h1 className="text-8xl font-extrabold text-surface-50 tracking-widest drop-shadow-lg drop-shadow-surface-950 [paint-order:stroke_fill] [-webkit-text-stroke:4px_var(--color-surface-950)] uppercase">
               MLS-API
             </h1>
             <div>
