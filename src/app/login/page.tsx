@@ -103,13 +103,14 @@ export default function LoginPage() {
     }
   }, [handleGoogleResponse]);
 
+  // Get if user previously logged in
   useEffect(() => {
     try {
-      setIsPreviousUser(Boolean(localStorage.getItem('previous-user')));
+      setIsPreviousUser(localStorage.getItem('previous-user') === 'true');
     } catch (e) {
       console.error(e);
     }
-  })
+  }, []);
 
   if (loading) {
     return (
@@ -137,13 +138,14 @@ export default function LoginPage() {
             </div>
             <div className="w-full flex flex-col gap-4" aria-hidden="true">
               <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-            </div>
+            { !reducedMotionEnabled && (
+              <div className="w-full flex flex-col gap-4" aria-hidden="true">
+                <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              </div>
+            ) }
           </div>
-          <div className="flex-1 flex flex-col gap-4 animate-vertical-scroll-two will-change-transform [animation-delay:-24s]">
             <div className="w-full flex flex-col gap-4">
               <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
@@ -158,8 +160,17 @@ export default function LoginPage() {
               <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
             </div>
+            { !reducedMotionEnabled && (
+              <div className="w-full flex flex-col gap-4">
+                <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-36 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              </div>
+            ) }
           </div>
-          <div className="flex-1 flex flex-col gap-4 animate-vertical-scroll-three will-change-transform [animation-delay:-28s]">
+          <div className={`flex-1 flex flex-col gap-4 ${reducedMotionEnabled ? `` : `animate-vertical-scroll-three will-change-transform [animation-delay:-28s]`}`}>
             <div className="w-full flex flex-col gap-4">
               <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
@@ -168,28 +179,39 @@ export default function LoginPage() {
               <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
               <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
             </div>
-            <div className="w-full flex flex-col gap-4">
-              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-              <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
-            </div>
+            { !reducedMotionEnabled && (
+              <div className="w-full flex flex-col gap-4">
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-36 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-48 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-72 w-full bg-primary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-24 w-full bg-primary-900 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+                <div className="h-24 w-full bg-secondary-500 rounded-lg shadow-lg/80 shadow-surface-800"></div>
+              </div>
+            ) }
           </div>
         </div>
         {/* Foreground */}
-        <div className="flex h-full w-full z-1 flex-col items-end justify-center gap-4 px-4 py-14 text-center">
-          <div className="flex flex-col items-end gap-6">
+        <div className="flex h-full w-full z-1 flex-col items-center lg:items-end justify-center gap-4 px-4 py-14 text-center">
+          <div className="flex flex-col items-center lg:items-end gap-6">
             <h1 className="text-8xl font-extrabold text-surface-50 tracking-widest drop-shadow-lg drop-shadow-surface-950 [-webkit-text-stroke:2px_var(--color-surface-950)] uppercase">
               MLS-API
             </h1>
+            <div>
+              <button 
+                className={`text-center p-2 px-4 rounded-[10px] outline-2 ${reducedMotionToggle ? 'bg-error-500/20 outline-error-800 hover:bg-error-500/40' : 'bg-primary-500/20 outline-primary-800 hover:bg-primary-500/40'} text-surface-50 transition-all backdrop-blur-sm`}
+                onClick={handleReducedMotionToggle}
+                aria-pressed={reducedMotionToggle}
+              >
+                <p>Reduced Motion: <b>{reducedMotionToggle ? "ON" : "OFF"}</b></p>
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Right Side — Google Auth */}
-      <div className="w-full md:w-1/2 min-h-[25vh] flex relative items-center justify-center bg-surface-50 px-8 py-10 md:py-12">
+      <div className="w-full md:w-1/2 min-h-[25vh] flex-1 flex relative items-center justify-center bg-surface-50 px-8 py-10 md:py-12">
         <div className="w-full max-w-md text-left flex flex-col gap-4">
           <div className="flex flex-col items-left">
             <div className="font-bold text-secondary-500 [-webkit-text-stroke:1.5px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
