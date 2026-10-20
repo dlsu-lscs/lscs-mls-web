@@ -225,7 +225,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right Side — Google Auth */}
-      <div className="w-full md:w-1/2 min-h-[25vh] flex-1 flex relative items-center justify-center bg-surface-50 px-8 py-10 md:py-12">
+      <div className="w-full md:w-1/2 min-h-[25vh] flex-1 flex relative items-center justify-center bg-surface-50 dark:bg-surface-950 px-8 py-10 md:py-12">
         <div className="w-full max-w-md text-left flex flex-col gap-4">
           <div className="flex flex-col items-left">
             <div className="font-bold text-secondary-500 [paint-order:stroke_fill] [-webkit-text-stroke:4px_var(--color-surface-400)] drop-shadow-md drop-shadow-surface-300"> 
